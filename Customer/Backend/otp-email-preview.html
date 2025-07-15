@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your OTP & Password Reset - Preview</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+    .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; margin: 20px 0; }
+    .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+    .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    .highlight { color: #667eea; font-weight: bold; }
+    .otp-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0; }
+    .otp-code { font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 10px 0; }
+    .divider { border-top: 2px solid #ddd; margin: 30px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔐 Password Reset & OTP</h1>
+      <p>Secure your account with OTP</p>
+    </div>
+    <div class="content">
+      <h2>Hello John Doe!</h2>
+      <p>We received a request to reset your password for your <span class="highlight">CustomerStore</span> account.</p>
+      
+      <!-- OTP Section -->
+      <div class="otp-box">
+        <h3>🔢 Your 6-Digit OTP</h3>
+        <div class="otp-code">123456</div>
+        <p>Enter this code to verify your identity</p>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <!-- Reset Button Section -->
+      <h3>🔄 Quick Reset Option</h3>
+      <p>Alternatively, you can use the reset button below to change your password directly:</p>
+      
+      <div style="text-align: center;">
+        <a href="#" class="button">Reset Password Now</a>
+      </div>
+      
+      <div class="warning">
+        <strong>⚠️ Important Security Notes:</strong>
+        <ul>
+          <li>Your OTP will expire in 10 minutes</li>
+          <li>The reset link will expire in 1 hour</li>
+          <li>If you didn't request this, please ignore this email</li>
+          <li>Never share your OTP or reset link with anyone</li>
+        </ul>
+      </div>
+      
+      <p>If the reset button doesn't work, copy and paste this link into your browser:</p>
+      <p style="word-break: break-all; color: #667eea;">https://customerstore.com/reset-password?token=test-token&email=test@example.com</p>
+      
+      <p>If you have any questions, contact our support team at <a href="mailto:support@customerstore.com">support@customerstore.com</a></p>
+    </div>
+    <div class="footer">
+      <p>&copy; 2024 CustomerStore. All rights reserved.</p>
+      <p>This email was sent to test@example.com</p>
+    </div>
+  </div>
+</body>
+</html> 

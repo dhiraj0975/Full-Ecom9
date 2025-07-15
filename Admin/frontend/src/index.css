@@ -1,0 +1,266 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+
+
+
+
+body {
+  @apply bg-gray-100;
+}
+.ReactCollapse--collapse {
+  transition: height 500ms;
+}
+
+
+
+/* 
+
+
+// 📁 src/index.jsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./index.css";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+
+// 📁 src/App.jsx
+import React from "react";
+import AppRoutes from "./AppRoutes";
+
+function App() {
+  return (
+    <div className="flex h-screen">
+      <AppRoutes />
+    </div>
+  );
+}
+
+export default App;
+
+
+// 📁 src/AppRoutes.jsx
+import React from "react";
+import Dashboard from "./pages/Dashboard";
+
+function AppRoutes() {
+  return <Dashboard />;
+}
+
+export default AppRoutes;
+
+
+// 📁 src/pages/Dashboard.jsx
+import React from "react";
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
+import Card from "../components/Card";
+import AreaChartBox from "../components/AreaChartBox";
+import BarChartBox from "../components/BarChartBox";
+
+function Dashboard() {
+  return (
+    <div className="flex w-full">
+      <Sidebar />
+      <div className="flex flex-col flex-1">
+        <Header />
+        <div className="p-4 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card title="Primary Card" color="bg-blue-500" />
+            <Card title="Warning Card" color="bg-yellow-400" />
+            <Card title="Success Card" color="bg-green-500" />
+            <Card title="Danger Card" color="bg-red-500" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <AreaChartBox />
+            <BarChartBox />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Dashboard;
+
+
+// 📁 src/components/Sidebar.jsx
+import React from "react";
+
+function Sidebar() {
+  return (
+    <div className="w-64 bg-gray-800 text-white h-screen p-4 space-y-4">
+      <h1 className="text-xl font-bold">Admin</h1>
+      <nav className="space-y-2">
+        <p className="text-gray-400 text-xs">CORE</p>
+        <a href="#" className="block hover:bg-gray-700 p-2 rounded">Dashboard</a>
+        <p className="text-gray-400 text-xs pt-4">INTERFACE</p>
+        <a href="#" className="block hover:bg-gray-700 p-2 rounded">Layouts</a>
+        <a href="#" className="block hover:bg-gray-700 p-2 rounded">Pages</a>
+        <p className="text-gray-400 text-xs pt-4">ADDONS</p>
+        <a href="#" className="block hover:bg-gray-700 p-2 rounded">Charts</a>
+        <a href="#" className="block hover:bg-gray-700 p-2 rounded">Tables</a>
+      </nav>
+      <div className="absolute bottom-4 text-sm">Logged in as: Admin</div>
+    </div>
+  );
+}
+
+export default Sidebar;
+
+
+// 📁 src/components/Header.jsx
+import React from "react";
+
+function Header() {
+  return (
+    <div className="bg-white shadow p-4 flex items-center justify-between">
+      <h2 className="text-2xl font-semibold">Dashboard</h2>
+      <div className="flex items-center space-x-4">
+        <input
+          type="text"
+          placeholder="Search for..."
+          className="border p-2 rounded w-64"
+        />
+        <button className="bg-blue-500 text-white px-4 py-2 rounded">🔍</button>
+        <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+      </div>
+    </div>
+  );
+}
+
+export default Header;
+
+
+// 📁 src/components/Card.jsx
+import React from "react";
+
+function Card({ title, color }) {
+  return (
+    <div className={`p-4 text-white rounded shadow ${color}`}>
+      <div className="text-lg font-medium">{title}</div>
+      <button className="text-sm underline mt-2">View Details</button>
+    </div>
+  );
+}
+
+export default Card;
+
+
+// 📁 src/components/AreaChartBox.jsx
+import React from "react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Filler,
+  Legend,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import { areaChartData } from "../utils/data";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Filler,
+  Legend
+);
+
+function AreaChartBox() {
+  return (
+    <div className="bg-white p-4 shadow rounded">
+      <h3 className="mb-2 font-semibold">Area Chart Example</h3>
+      <Line data={areaChartData} options={{ responsive: true }} />
+    </div>
+  );
+}
+
+export default AreaChartBox;
+
+
+// 📁 src/components/BarChartBox.jsx
+import React from "react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+import { barChartData } from "../utils/data";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+function BarChartBox() {
+  return (
+    <div className="bg-white p-4 shadow rounded">
+      <h3 className="mb-2 font-semibold">Bar Chart Example</h3>
+      <Bar data={barChartData} options={{ responsive: true }} />
+    </div>
+  );
+}
+
+export default BarChartBox;
+
+
+// 📁 src/utils/data.js
+export const areaChartData = {
+  labels: ["Mar 1", "Mar 3", "Mar 5", "Mar 7", "Mar 9", "Mar 11", "Mar 13"],
+  datasets: [
+    {
+      label: "Revenue",
+      data: [10000, 32000, 21000, 18000, 29000, 26000, 34000],
+      fill: true,
+      backgroundColor: "rgba(54, 162, 235, 0.2)",
+      borderColor: "rgb(54, 162, 235)",
+    },
+  ],
+};
+
+export const barChartData = {
+  labels: ["January", "February", "March", "April", "May", "June"],
+  datasets: [
+    {
+      label: "Earnings",
+      data: [4000, 5000, 6000, 7500, 10000, 14500],
+      backgroundColor: "rgb(54, 162, 235)",
+    },
+  ],
+};
+
+
+// 📁 src/index.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gray-100;
+}
+
+ */
