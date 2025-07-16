@@ -22,7 +22,7 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   "https://admin-frontend-chi-fawn.vercel.app", // ✅ Sahi domain
-  "http://localhost:3000"
+ 
 ];
 
 app.use(cors({
