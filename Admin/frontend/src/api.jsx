@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://admin-backend-pied.vercel.app/api',
+  baseURL: 'https://admin-backend-six-steel.vercel.app/api',
     withCredentials: true, // ⬅️ yeh add karo
 });
 
