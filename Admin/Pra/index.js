@@ -17,13 +17,23 @@ const path = require('path');
 
 const app = express();
 
-// Middleware
-app.use(cors({
-  
-origin: process.env.CORS_ORIGIN  || "https://admin-frontend-chi-fawn.vercel.app",
+// console.log("✅ CORS ORIGIN loaded from env:", process.env.CORS_ORIGIN);
 
-   credentials: true,
- 
+// Middleware
+const allowedOrigins = [
+  "https://admin-frontend-chi-fawn.vercel.app", // ✅ Sahi domain
+  "http://localhost:3000"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
