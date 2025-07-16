@@ -20,7 +20,7 @@ const app = express();
 // Middleware
 app.use(cors({
   
-origin: process.env.CORS_ORIGIN  || "https://full-ecom9-frontend.vercel.app",
+origin: process.env.CORS_ORIGIN  || "https://admin-fontend.vercel.app",
 
    credentials: true,
  
