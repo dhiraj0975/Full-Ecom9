@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API = axios.create({
   // baseURL: 'https://ecommerce11-tjd2.vercel.app/api',
-  baseURL: 'http://localhost:5000/api',
+  baseURL: 'https://full-ecom9-19qw.vercel.app/api',
     withCredentials: true, // ⬅️ yeh add karo
 });
 
