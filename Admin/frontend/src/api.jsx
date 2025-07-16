@@ -1,10 +1,9 @@
 import axios from 'axios';
 
-  const API = axios.create({
-     baseURL: import.meta.env.VITE_API_URL + '/api', // React
-     // baseURL: import.meta.env.VITE_API_URL + '/api', // Vite
-     withCredentials: true,
-   });
+const API = axios.create({
+  baseURL: process.env.REACT_APP_API_URL + '/api',
+  withCredentials: true,
+});
 
 // ========== Admin User APIs ==========
 export const loginAdmin = (data) => API.post('/auth/login', data);                    // POST => /api/adminuser/login
