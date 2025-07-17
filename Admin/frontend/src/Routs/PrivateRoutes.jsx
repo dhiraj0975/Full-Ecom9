@@ -10,7 +10,7 @@ const PrivateRoute = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get("https://admin-backend-six-steel.vercel.app/auth/me", {
+        const res = await axios.get("https://admin-backend-six-steel.vercel.app/api/auth/me", {
           withCredentials: true,
         });
         if (res.data.success) {
