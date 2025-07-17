@@ -9,7 +9,7 @@ import axios from "axios";
 import { DashboardContext } from "../context/DashboardContext";
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: 'https://admin-backend-six-steel.vercel.app/api',
   withCredentials: true,
 });
 
