@@ -110,6 +110,28 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteProfile = async () => {
+    const result = await Swal.fire({
+      title: 'Delete Profile?',
+      text: "Are you sure? This action cannot be undone.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+    if (result.isConfirmed) {
+      try {
+        await axios.delete('/api/customers/profile', { withCredentials: true });
+        Swal.fire('Deleted!', 'Your profile has been deleted.', 'success');
+        window.location.href = '/login';
+      } catch {
+        Swal.fire('Error', 'Failed to delete profile', 'error');
+      }
+    }
+  };
+
   if (loading) return <div className="flex justify-center items-center min-h-[40vh]">Loading...</div>;
   if (!profile) return <div className="text-red-500 text-center py-10">Profile not found.</div>;
 
@@ -232,9 +254,18 @@ const Profile = () => {
               </div>
             )}
             {!editMode && (
-              <div className="flex justify-end mt-8">
-                <button className="btn btn-outline-primary font-semibold px-6 py-2 rounded-xl shadow hover:bg-blue-50 transition" onClick={handleEdit}>
+              <div className="flex justify-end mt-8 gap-4">
+                <button
+                  className="btn btn-outline-primary font-semibold px-6 py-2 rounded-xl shadow hover:bg-blue-50 transition"
+                  onClick={handleEdit}
+                >
                   Edit Profile
+                </button>
+                <button
+                  className="btn bg-red-500 text-white font-semibold px-6 py-2 rounded-xl shadow hover:bg-red-600 transition"
+                  onClick={handleDeleteProfile}
+                >
+                  Delete Profile
                 </button>
               </div>
             )}

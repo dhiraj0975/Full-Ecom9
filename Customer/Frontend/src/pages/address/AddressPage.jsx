@@ -207,7 +207,7 @@ const AddressPage = () => {
   return (
     <div className="bg-gray-50 min-h-screen py-8">
       <ToastContainer position="top-center" autoClose={2000} />
-      <div className="max-w-7xl mx-auto px-2 md:px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-2 md:px-6 py-1 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Address Section */}
         <div className="md:col-span-2">
           <div className="max-w-4xl mx-auto bg-white rounded shadow p-6">
@@ -226,35 +226,45 @@ const AddressPage = () => {
               <div className="bg-blue-600 text-white px-4 py-2 rounded-t font-semibold text-lg">DELIVERY ADDRESS</div>
               <div className="bg-white border-x border-b rounded-b p-4">
                 {addresses.map(addr => (
-                  <div key={addr.id} className={`flex items-start gap-4 p-4 mb-4 rounded border ${selectedId === addr.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200'}`}>
-                    <input
-                      type="radio"
-                      checked={selectedId === addr.id}
-                      onChange={() => {
-                        setSelectedId(addr.id);
-                        localStorage.setItem('selected_address_id', addr.id);
-                      }}
-                      className="mt-1 h-5 w-5 text-blue-600"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-lg">{addr.name || 'Name'}</span>
-                        <span className="bg-gray-100 text-xs px-2 py-0.5 rounded border font-semibold">HOME</span>
-                        <span className="text-gray-700 font-semibold">{addr.phone || ''}</span>
+                  <div key={addr.id} className={`flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4 p-4 mb-4 rounded border ${selectedId === addr.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200'}`}>
+                    <div className="flex flex-row items-start gap-3 w-full">
+                      <input
+                        type="radio"
+                        checked={selectedId === addr.id}
+                        onChange={() => {
+                          setSelectedId(addr.id);
+                          localStorage.setItem('selected_address_id', addr.id);
+                        }}
+                        className="mt-1 h-5 w-5 text-blue-600"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-lg">{addr.name || 'Name'}</span>
+                          <span className="bg-gray-100 text-xs px-2 py-0.5 rounded border font-semibold">HOME</span>
+                          <span className="text-gray-700 font-semibold">{addr.phone || ''}</span>
+                        </div>
+                        <div className="text-gray-700 mt-1">
+                          {addr.address_line}, {addr.city}, {addr.state} - <b>{addr.pincode}</b>
+                        </div>
+                        <div className="mt-3 flex flex-row items-center gap-2">
+                          <button className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded font-bold shadow text-sm sm:px-6 sm:py-2 sm:text-base" onClick={() => {
+                            localStorage.setItem('selected_address_id', addr.id);
+                            navigate('/payment');
+                          }}>
+                            DELIVER HERE
+                          </button>
+                          {/* Responsive Edit/Delete Buttons for mobile: inline with DELIVER HERE */}
+                          <div className="flex flex-row gap-2 sm:hidden">
+                            <button className="text-blue-600 font-semibold text-sm" onClick={() => handleEdit(addr)}>EDIT</button>
+                            <button className="text-red-500 font-semibold text-sm" onClick={() => handleDelete(addr.id)}>DELETE</button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-gray-700 mt-1">
-                        {addr.address_line}, {addr.city}, {addr.state} - <b>{addr.pincode}</b>
-                      </div>
-                      <button className="mt-3 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded font-bold shadow" onClick={() => {
-                        localStorage.setItem('selected_address_id', addr.id);
-                        navigate('/payment');
-                      }}>
-                        DELIVER HERE
-                      </button>
                     </div>
-                    <div className="flex flex-col gap-2 ml-2">
-                      <button className="text-blue-600 font-semibold" onClick={() => handleEdit(addr)}>EDIT</button>
-                      <button className="text-red-500 font-semibold" onClick={() => handleDelete(addr.id)}>DELETE</button>
+                    {/* On desktop/tablet, show buttons in column to the right */}
+                    <div className="hidden sm:flex flex-col gap-2 ml-2">
+                      <button className="text-blue-600 font-semibold text-sm" onClick={() => handleEdit(addr)}>EDIT</button>
+                      <button className="text-red-500 font-semibold text-sm" onClick={() => handleDelete(addr.id)}>DELETE</button>
                     </div>
                   </div>
                 ))}
