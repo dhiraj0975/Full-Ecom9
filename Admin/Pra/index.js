@@ -20,21 +20,11 @@ const app = express();
 // console.log("✅ CORS ORIGIN loaded from env:", process.env.CORS_ORIGIN);
 
 // Middleware
-const allowedOrigins = [
-  "https://admin-frontend-chi-fawn.vercel.app", // ✅ Sahi domain
- 
-];
-
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
+  origin: "https://admin-frontend-chi-fawn.vercel.app", 
+  credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET || 'cookie_secret_key'));
