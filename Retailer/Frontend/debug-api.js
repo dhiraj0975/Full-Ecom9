@@ -1,5 +1,5 @@
 // Debug script to test API endpoints
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = VITE_API_BASE_URL;
 
 async function testAPI() {
   console.log('🔍 Testing API endpoints...');

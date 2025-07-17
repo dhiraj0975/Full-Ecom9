@@ -1,6 +1,6 @@
 // API Configuration
 const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api" || "http://localhost:3001/api" || " http://localhost:5173/" ,
+  BASE_URL: import.meta.env.VITE_API_BASE_URL + "/api" || "http://localhost:5001/api" || "http://localhost:3001/api" || " http://localhost:5173/" ,
   TIMEOUT: 10000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,

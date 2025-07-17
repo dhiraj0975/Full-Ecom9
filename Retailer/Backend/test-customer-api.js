@@ -1,7 +1,7 @@
 // Test file for customer API endpoints
 const axios = require('axios');
 
-const BASE_URL = 'http://localhost:5001/api';
+const BASE_URL = 'https://retailer-frontend.vercel.app' ;
 let authToken = '';
 
 // Test data
