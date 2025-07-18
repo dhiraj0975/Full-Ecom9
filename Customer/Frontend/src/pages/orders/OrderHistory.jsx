@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMyOrders, getOrderDetails, downloadInvoice } from '../../services/orderService';
-import { getAddressById } from '../../services/addressService';
+import { getCustomerOrders, getOrderById, getOrderItems, getOrderInvoice } from '../../services/orderService';
+import { getAddress } from '../../services/addressService';
 import {
   Package,
   Clock,
@@ -50,7 +50,7 @@ const OrderHistory = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await getMyOrders();
+      const response = await getCustomerOrders();
       setOrders(response.orders || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -74,15 +74,16 @@ const OrderHistory = () => {
       setFetchingDetails(orderId);
       try {
         console.log('🔍 Fetching order details for orderId:', orderId);
-        const details = await getOrderDetails(orderId);
+        const details = await getOrderById(orderId);
+        const items = await getOrderItems(orderId);
         console.log('📦 Order details fetched:', details);
-        console.log('📦 Order items:', details.items);
+        console.log('📦 Order items:', items);
         
         let address = null;
         if (addressId) {
           console.log('🏠 Fetching address for addressId:', addressId);
           try {
-            const addressRes = await getAddressById(addressId);
+            const addressRes = await getAddress(addressId);
             console.log('📍 Address response:', addressRes);
             address = addressRes.address || addressRes;
             console.log('📍 Final address data:', address);
@@ -95,7 +96,7 @@ const OrderHistory = () => {
         }
         
         console.log('💾 Setting order details with address:', { ...details, address });
-        setOrderDetailsMap(prev => ({ ...prev, [orderId]: { ...details, address } }));
+        setOrderDetailsMap(prev => ({ ...prev, [orderId]: { ...details, address, items } }));
       } catch (error) {
         console.error('❌ Order details fetch error:', error);
         Swal.fire({ 
@@ -153,7 +154,7 @@ const OrderHistory = () => {
   const handleDownloadInvoice = async (orderId) => {
     setDownloadingInvoiceId(orderId);
     try {
-      const blob = await downloadInvoice(orderId);
+      const blob = await getOrderInvoice(orderId);
       const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement('a');
       link.href = url;

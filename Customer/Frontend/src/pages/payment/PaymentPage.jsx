@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Gift, Lock, Info, CheckCircle, Circle } from 'lucide-react';
-import { createPayment } from '../../services/paymentService';
+import { makePayment } from '../../services/paymentService';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
@@ -94,7 +94,7 @@ const PaymentPage = () => {
         transaction_id: 'TXN' + Date.now(),
       };
       
-      const paymentRes = await createPayment(paymentData);
+      const paymentRes = await makePayment(paymentData);
       
       if (paymentRes.data.success) {
         // Step 2: Create Order with product details for quantity deduction
@@ -195,7 +195,7 @@ const PaymentPage = () => {
         upi_id: selected === 'upi' ? upiId : undefined,
         card_last4: undefined,
       };
-      const paymentRes = await createPayment(paymentData);
+      const paymentRes = await makePayment(paymentData);
       console.log('PaymentRes:', paymentRes.data);
 
       if (paymentRes.data.success) {

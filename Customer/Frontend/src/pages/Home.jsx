@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, User, ArrowRight, ChevronDown } from 'lucide-react';
 import CustomImageSwiper from '../components/common/CustomImageSwiper';
 import ProductGrid from '../components/products/ProductGrid';
-import { getAllProducts } from '../services/productService';
+import { getProducts } from '../services/productService';
 import { motion } from 'framer-motion';
 
 const images = [
@@ -30,7 +30,7 @@ const Home = () => {
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
-      const data = await getAllProducts();
+      const data = await getProducts();
       setProducts(data);
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAllProducts } from '../../services/productService';
+import { getProducts } from '../../services/productService';
 import ProductGrid from '../../components/products/ProductGrid';
 import { useParams } from 'react-router-dom';
 
@@ -11,7 +11,7 @@ const ProductList = () => {
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
-      const data = await getAllProducts();
+      const data = await getProducts();
       const filtered = subcategoryId ? data.filter(p => String(p.subcategory_id) === String(subcategoryId)) : data;
       setProducts(filtered);
       setLoading(false);

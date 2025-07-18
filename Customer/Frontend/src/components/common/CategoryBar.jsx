@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { fetchCategories } from '../../services/categoryService';
-import { fetchSubcategories } from '../../services/subcategoryService';
+import { getCategories } from '../../services/categoryService';
+import { getSubcategories } from '../../services/subcategoryService';
 import { ShoppingBag, Monitor, Shirt, Gift, Home, Book, Trophy, Smartphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -92,14 +92,14 @@ const CategoryBar = ({ showIcons }) => {
       };
 
   useEffect(() => {
-    fetchCategories().then(setCategories);
+    getCategories().then(setCategories);
   }, []);
 
   // Fetch subcategories when hoveredCategoryId or activeCategoryId changes
   useEffect(() => {
     const catId = hoveredCategoryId || activeCategoryId;
     if (catId) {
-      fetchSubcategories(catId).then(data => {
+      getSubcategories(catId).then(data => {
         setSubcategories(data);
         // Set drawer position
         const btn = btnRefs.current[catId];
