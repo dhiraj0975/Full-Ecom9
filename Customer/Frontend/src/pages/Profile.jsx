@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { User, Mail, Phone, Calendar, Edit2, Save, X, KeyRound, MapPin, Home, Hash, Landmark, ShoppingBag, CreditCard, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -50,7 +50,7 @@ const Profile = () => {
   const fetchProfile = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/customers/profile', { withCredentials: true });
+      const res = await api.get('/api/customers/profile');
       setProfile(res.data.data);
       setForm({
         name: res.data.data.name,
@@ -89,7 +89,7 @@ const Profile = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.put('/api/customers/profile', form, { withCredentials: true });
+      await api.put('/api/customers/profile', form);
       Swal.fire('Success', 'Profile updated', 'success');
       setEditMode(false);
       fetchProfile();
@@ -123,7 +123,7 @@ const Profile = () => {
     });
     if (result.isConfirmed) {
       try {
-        await axios.delete('/api/customers/profile', { withCredentials: true });
+        await api.delete('/api/customers/profile');
         Swal.fire('Deleted!', 'Your profile has been deleted.', 'success');
         window.location.href = '/login';
       } catch {

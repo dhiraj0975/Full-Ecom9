@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, User, Mail, Lock, Phone, AlertCircle, CheckCircle, ShoppingBag, Sparkles, Shield, Zap, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import api from '../../api/axios';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -85,7 +85,7 @@ const Register = () => {
 
     try {
       console.log('Sending registration request...');
-      const response = await axios.post('/api/customers/register', formData);
+      const response = await api.post('/api/customers/register', formData);
       const data = response.data;
       console.log('Response data:', data);
 
@@ -123,7 +123,7 @@ const Register = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('/api/customers/verify-mobile-otp', {
+      const response = await api.post('/api/customers/verify-mobile-otp', {
         phone: otpData.phone,
         email: otpData.email,
         otp: otp
@@ -155,7 +155,7 @@ const Register = () => {
 
   const resendOTP = async () => {
     try {
-      const response = await axios.post('/api/customers/generate-mobile-otp', {
+      const response = await api.post('/api/customers/generate-mobile-otp', {
         phone: otpData.phone,
         email: otpData.email
       });

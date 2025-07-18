@@ -7,7 +7,7 @@ async function testOTPOnly() {
     
     // Create axios instance
     const client = axios.create({
-      baseURL: 'http://localhost:5002/api',
+      baseURL: 'https://customer-backend-one.vercel.app/api',
       headers: {
         'Content-Type': 'application/json'
       }

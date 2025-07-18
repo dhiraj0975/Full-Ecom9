@@ -7,7 +7,7 @@ async function testEmailIssues() {
     
     // Create axios instance
     const client = axios.create({
-      baseURL: 'http://localhost:3001/api',
+      baseURL: 'https://customer-backend-one.vercel.app/api',
       headers: {
         'Content-Type': 'application/json'
       }

@@ -1,11 +1,6 @@
-import axios from 'axios';
+import api from '../api/axios';
 
-export async function fetchSubcategories(categoryId) {
-  try {
-    const response = await axios.get(`/api/subcategories/${categoryId}`, { withCredentials: true });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching subcategories:', error);
-    return [];
-  }
-} 
+export const getSubcategories = async (categoryId) => {
+  const response = await api.get(`/api/subcategories/${categoryId}`);
+  return response;
+}; 

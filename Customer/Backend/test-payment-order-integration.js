@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const BASE_URL = 'http://localhost:5002/api';
+const BASE_URL = 'https://customer-backend-one.vercel.app/api';
 
 // Test data
 const testData = {
