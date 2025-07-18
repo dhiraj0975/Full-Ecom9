@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../api/axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
@@ -99,7 +99,7 @@ const AddressPage = () => {
   const fetchAddresses = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/addresses', { withCredentials: true });
+      const res = await api.get('/api/addresses');
       const data = res.data;
       setAddresses(data);
       setSelectedId(data.find(a => a.is_default)?.id || (data[0] && data[0].id));
@@ -112,7 +112,7 @@ const AddressPage = () => {
   useEffect(() => { fetchAddresses(); }, []);
 
   useEffect(() => {
-    axios.get('/api/cart', { withCredentials: true }).then(res => setCart(res.data));
+    api.get('/api/cart').then(res => setCart(res.data));
   }, []);
 
   const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
@@ -141,10 +141,10 @@ const AddressPage = () => {
     setModalLoading(true);
     try {
       if (modalMode === 'edit' && modalInitial) {
-        await axios.put(`/api/addresses/${modalInitial.id}`, form, { withCredentials: true });
+        await api.put(`/api/addresses/${modalInitial.id}`, form);
         toast.success('Address updated!', { position: 'top-center' });
       } else {
-        await axios.post('/api/addresses', form, { withCredentials: true });
+        await api.post('/api/addresses', form);
         toast.success('Address added!', { position: 'top-center' });
       }
       fetchAddresses();
@@ -169,7 +169,7 @@ const AddressPage = () => {
     });
     if (result.isConfirmed) {
       try {
-        await axios.delete(`/api/addresses/${id}`, { withCredentials: true });
+        await api.delete(`/api/addresses/${id}`);
         await Swal.fire({
           title: 'Deleted!',
           text: 'Address has been deleted successfully.',
@@ -188,10 +188,10 @@ const AddressPage = () => {
     setFormLoading(true);
     try {
       if (editId) {
-        await axios.put(`/api/addresses/${editId}`, form, { withCredentials: true });
+        await api.put(`/api/addresses/${editId}`, form);
         toast.success('Address updated!', { position: 'top-center' });
       } else {
-        await axios.post('/api/addresses', form, { withCredentials: true });
+        await api.post('/api/addresses', form);
         toast.success('Address added!', { position: 'top-center' });
       }
       setShowForm(false);

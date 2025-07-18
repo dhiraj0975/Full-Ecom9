@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, AlertCircle, CheckCircle, ArrowLeft, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Swal from 'sweetalert2';
-import axios from 'axios';
+import api from '../../api/axios';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -33,7 +33,7 @@ const ForgotPassword = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('/api/email/otp', { email }, { withCredentials: true });
+      const response = await api.post('/api/email/otp', { email });
       const data = response.data;
 
       if (data.success) {

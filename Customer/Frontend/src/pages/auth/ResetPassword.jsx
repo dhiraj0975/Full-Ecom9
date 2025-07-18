@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import api from '../../api/axios';
 
 // Confetti SVG animation
 const Confetti = () => (
@@ -70,11 +70,11 @@ const ResetPassword = () => {
     }
     setLoading(true);
     try {
-      const response = await axios.post('/api/customers/verify-otp-reset', { email, otp, newPassword: password }, { withCredentials: true });
+      const response = await api.post('/api/customers/verify-otp-reset', { email, otp, newPassword: password });
       const data = response.data;
       if (data.success) {
         // Auto-login after password reset
-        const loginRes = await axios.post('/api/customers/login', { email, password }, { withCredentials: true });
+        const loginRes = await api.post('/api/customers/login', { email, password });
         const loginData = loginRes.data;
         if (loginData.success && loginData.data && loginData.data.token) {
           localStorage.setItem('token', loginData.data.token);

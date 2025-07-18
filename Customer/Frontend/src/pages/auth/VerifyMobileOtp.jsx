@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Phone, AlertCircle, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import api from '../../api/axios';
 
 const VerifyMobileOtp = () => {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const VerifyMobileOtp = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('/api/customers/verify-mobile-otp', { phone, email, otp }, { withCredentials: true });
+      const response = await api.post('/api/customers/verify-mobile-otp', { phone, email, otp });
       const data = response.data;
       console.log('OTP verification response:', data);
 
@@ -73,7 +73,7 @@ const VerifyMobileOtp = () => {
     setSuccess('');
 
     try {
-      const response2 = await axios.post('/api/customers/generate-mobile-otp', { phone, email }, { withCredentials: true });
+      const response2 = await api.post('/api/customers/generate-mobile-otp', { phone, email });
       const data2 = response2.data;
       setSuccess('OTP resent successfully!');
       setCountdown(30);

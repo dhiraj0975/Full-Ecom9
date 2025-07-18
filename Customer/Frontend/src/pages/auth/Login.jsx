@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, ShoppingBag, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import api from '../../api/axios';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const Login = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('/api/customers/login', { email: formData.email, password: formData.password }, { withCredentials: true });
+      const response = await api.post('/api/customers/login', { email: formData.email, password: formData.password });
       const data = response.data;
       if (data.success) {
         localStorage.setItem('token', data.data.token);

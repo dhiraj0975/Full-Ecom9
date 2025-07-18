@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import api from '../../api/axios';
 
 // Confetti SVG animation
 const Confetti = () => (
@@ -143,7 +143,7 @@ const VerifyOtp = () => {
     setLoading(true);
     try {
       // Proceed with backend verification (optional)
-      const response = await axios.post('/api/customers/verify-otp-reset', { email, otp, newPassword: 'dummy123' }, { withCredentials: true });
+      const response = await api.post('/api/customers/verify-otp-reset', { email, otp, newPassword: 'dummy123' });
       const data = response.data;
       if (data.success || data.message?.toLowerCase().includes('password')) {
         setShowConfetti(true);
