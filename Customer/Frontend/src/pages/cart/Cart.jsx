@@ -99,7 +99,7 @@ const Cart = () => {
     }
   };
 
-  if (cart.length === 0) {
+  if (!Array.isArray(cart) || cart.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh] text-center bg-gradient-to-br from-blue-50 to-purple-50 px-2 sm:px-4">
         <EmptyCartSVG />
@@ -126,7 +126,7 @@ const Cart = () => {
           </h2>
           <ul className="space-y-4 sm:space-y-6">
             <AnimatePresence>
-            {cart.map(item => {
+            {Array.isArray(cart) && cart.map(item => {
               let stockStatus = '';
               let stockClass = '';
               if (item.product_quantity === 0) {
