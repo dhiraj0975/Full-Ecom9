@@ -21,7 +21,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "https://admin-frontend-chi-fawn.vercel.app", 
+  origin: "https://admin-frontend-chi-fawn.vercel.app",
   credentials: true
 }));
 
