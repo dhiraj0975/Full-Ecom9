@@ -33,13 +33,37 @@ const PaymentPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('/api/cart', { withCredentials: true }).then(res => setCart(res.data));
+    // Use the configured API base URL
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    
+    // Fetch cart with proper error handling
+    axios.get(`${apiUrl}/api/cart`, { 
+      withCredentials: true 
+    }).then(res => {
+      console.log('🛒 Cart data received:', res.data);
+      // Handle both old and new response formats
+      if (res.data && res.data.data) {
+        setCart(res.data.data); // New format
+      } else if (Array.isArray(res.data)) {
+        setCart(res.data); // Old format
+      } else {
+        setCart([]);
+      }
+    }).catch(error => {
+      console.error('❌ Error fetching cart:', error);
+      setCart([]);
+    });
+    
     // Ensure selected_address_id is set
     if (!localStorage.getItem('selected_address_id')) {
-      axios.get('/api/addresses', { withCredentials: true }).then(res => {
+      axios.get(`${apiUrl}/api/addresses`, { 
+        withCredentials: true 
+      }).then(res => {
         if (Array.isArray(res.data) && res.data.length > 0) {
           localStorage.setItem('selected_address_id', res.data[0].id);
         }
+      }).catch(error => {
+        console.error('❌ Error fetching addresses:', error);
       });
     }
   }, []);

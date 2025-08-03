@@ -23,9 +23,20 @@ exports.getCart = async (req, res) => {
   try {
     const customer_id = req.user.id;
     const [rows] = await cartModel.getCartItems(customer_id);
-    res.json(rows);
+    
+    // Return proper response format
+    res.json({
+      success: true,
+      data: rows,
+      message: 'Cart items fetched successfully'
+    });
   } catch (err) {
-    res.status(500).json({ error: 'DB error' });
+    console.error('❌ Cart fetch error:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'DB error',
+      message: 'Failed to fetch cart items'
+    });
   }
 };
 

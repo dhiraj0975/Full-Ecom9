@@ -19,10 +19,31 @@ export const getCart = async () => {
       withCredentials: true
     });
     console.log('🛒 Cart fetched successfully:', response.data);
-    return response;
+    
+    // Handle both old and new response formats
+    if (response.data && response.data.data) {
+      return { data: response.data.data }; // New format
+    } else if (Array.isArray(response.data)) {
+      return { data: response.data }; // Old format
+    } else {
+      return { data: [] };
+    }
   } catch (error) {
     console.error('❌ Error fetching cart:', error.response?.data || error.message);
-    // Return empty cart instead of throwing error
+    
+    // Check if it's an authentication error
+    if (error.response?.status === 401) {
+      console.log('🔐 User not authenticated, returning empty cart');
+      return { data: [] };
+    }
+    
+    // Check if it's a network error
+    if (error.code === 'ERR_NETWORK') {
+      console.log('🌐 Network error, returning empty cart');
+      return { data: [] };
+    }
+    
+    // Return empty cart for other errors
     return { data: [] };
   }
 };
