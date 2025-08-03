@@ -68,9 +68,12 @@ const PaymentPage = () => {
     }
   }, []);
 
-  const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-  const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-  const mrp = cart.reduce((sum, item) => sum + ((item.mrp || item.price) * (item.quantity || 1)), 0);
+  // Ensure cart is always an array
+  const cartArray = Array.isArray(cart) ? cart : [];
+  
+  const total = cartArray.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+  const totalItems = cartArray.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const mrp = cartArray.reduce((sum, item) => sum + ((item.mrp || item.price) * (item.quantity || 1)), 0);
   const deliveryFree = total > 999;
   const estDelivery = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString();
 
@@ -87,7 +90,7 @@ const PaymentPage = () => {
 
   const handlePay = async (e) => {
     e.preventDefault();
-    if (cart.length === 0 || total <= 0) {
+    if (cartArray.length === 0 || total <= 0) {
       setMessage('Cart is empty! Please add items to cart.');
       return;
     }
@@ -132,12 +135,12 @@ const PaymentPage = () => {
           delivery_charge: deliveryFree ? 0 : 49,
           discount: discount,
           payment_method: selected,
-          order_items: cart.map(item => ({
-            product_id: item.product_id,
-            quantity: item.quantity || 1
-          }))
-        };
-        console.log('OrderData:', orderData);
+                     order_items: cartArray.map(item => ({
+             product_id: item.product_id,
+             quantity: item.quantity || 1
+           }))
+         };
+         console.log('OrderData:', orderData);
         const orderRes = await axios.post('/api/orders', orderData, { withCredentials: true });
         
         if (orderRes.data.success) {
@@ -147,7 +150,7 @@ const PaymentPage = () => {
           }, { withCredentials: true });
           
           // Step 4: Create Order Items
-          const orderItems = cart.map(item => ({
+          const orderItems = cartArray.map(item => ({
             order_id: orderRes.data.order_id,
             product_id: item.product_id,
             quantity: item.quantity || 1,
@@ -190,7 +193,7 @@ const PaymentPage = () => {
   const amount = 500;
 
   const handleRazorpaySuccess = async (response) => {
-    if (cart.length === 0 || total <= 0) {
+    if (cartArray.length === 0 || total <= 0) {
       setMessage('Cart is empty! Please add items to cart.');
       return;
     }
@@ -233,25 +236,25 @@ const PaymentPage = () => {
           delivery_charge: deliveryFree ? 0 : 49,
           discount: discount,
           payment_method: 'razorpay',
-          order_items: cart.map(item => ({
-            product_id: item.product_id,
-            quantity: item.quantity || 1
-          }))
-        };
-        const orderRes = await axios.post('/api/orders', orderData, { withCredentials: true });
+                     order_items: cartArray.map(item => ({
+             product_id: item.product_id,
+             quantity: item.quantity || 1
+           }))
+         };
+         const orderRes = await axios.post('/api/orders', orderData, { withCredentials: true });
         console.log('OrderRes:', orderRes.data);
         if (orderRes.data.success) {
           // 4. Update Payment with order_id
           await axios.put(`/api/payments/${paymentRes.data.payment_id}`, {
             order_id: orderRes.data.order_id
           }, { withCredentials: true });
-          // 5. Create Order Items
-          const orderItems = cart.map(item => ({
-            order_id: orderRes.data.order_id,
-            product_id: item.product_id,
-            quantity: item.quantity || 1,
-            price: item.price
-          }));
+                     // 5. Create Order Items
+           const orderItems = cartArray.map(item => ({
+             order_id: orderRes.data.order_id,
+             product_id: item.product_id,
+             quantity: item.quantity || 1,
+             price: item.price
+           }));
           const orderItemsRes = await axios.post('/api/order-items', { items: orderItems }, { withCredentials: true });
           console.log('OrderItemsRes:', orderItemsRes.data);
           if (orderItemsRes.data.success) {
