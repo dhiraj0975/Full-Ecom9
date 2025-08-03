@@ -7,7 +7,7 @@ async function testCookieAuth() {
     
     // Create axios instance with cookie support
     const client = axios.create({
-      baseURL: 'https://customer-backend-one.vercel.app/api/customers',
+      baseURL: import.meta.env.VITE_API_URL + "/api/customers",
       withCredentials: true, // Important for cookies
       headers: {
         'Content-Type': 'application/json'

@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const BASE_URL = 'https://customer-backend-one.vercel.app/api';
+const BASE_URL = import.meta.env.VITE_API_URL +'/api';
 
 // Test data
 const testData = {
