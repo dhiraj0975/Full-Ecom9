@@ -41,14 +41,23 @@ const PaymentPage = () => {
       withCredentials: true 
     }).then(res => {
       console.log('🛒 Cart data received:', res.data);
-      // Handle both old and new response formats
-      if (res.data && res.data.data) {
-        setCart(res.data.data); // New format
+      
+      // Better error handling and data validation
+      let cartData = [];
+      
+      if (res.data && res.data.data && Array.isArray(res.data.data)) {
+        cartData = res.data.data; // New format
       } else if (Array.isArray(res.data)) {
-        setCart(res.data); // Old format
+        cartData = res.data; // Old format
+      } else if (res.data && Array.isArray(res.data)) {
+        cartData = res.data; // Direct array
       } else {
-        setCart([]);
+        console.log('⚠️ Invalid cart data format, setting empty array');
+        cartData = [];
       }
+      
+      console.log('🛒 Final cart data:', cartData);
+      setCart(cartData);
     }).catch(error => {
       console.error('❌ Error fetching cart:', error);
       setCart([]);
@@ -59,8 +68,21 @@ const PaymentPage = () => {
       axios.get(`${apiUrl}/api/addresses`, { 
         withCredentials: true 
       }).then(res => {
-        if (Array.isArray(res.data) && res.data.length > 0) {
-          localStorage.setItem('selected_address_id', res.data[0].id);
+        console.log('🏠 Address data received:', res.data);
+        
+        // Handle different response formats
+        let addressData = [];
+        if (res.data && res.data.data && Array.isArray(res.data.data)) {
+          addressData = res.data.data; // New format
+        } else if (Array.isArray(res.data)) {
+          addressData = res.data; // Old format
+        }
+        
+        if (addressData.length > 0) {
+          localStorage.setItem('selected_address_id', addressData[0].id);
+          console.log('🏠 Selected address ID:', addressData[0].id);
+        } else {
+          console.log('⚠️ No addresses found');
         }
       }).catch(error => {
         console.error('❌ Error fetching addresses:', error);
@@ -68,12 +90,26 @@ const PaymentPage = () => {
     }
   }, []);
 
-  // Ensure cart is always an array
+  // Ensure cart is always an array with proper validation
   const cartArray = Array.isArray(cart) ? cart : [];
   
-  const total = cartArray.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-  const totalItems = cartArray.reduce((sum, item) => sum + (item.quantity || 1), 0);
-  const mrp = cartArray.reduce((sum, item) => sum + ((item.mrp || item.price) * (item.quantity || 1)), 0);
+  // Add safety checks for reduce operations
+  const total = cartArray.reduce((sum, item) => {
+    const price = parseFloat(item?.price) || 0;
+    const quantity = parseInt(item?.quantity) || 1;
+    return sum + (price * quantity);
+  }, 0);
+  
+  const totalItems = cartArray.reduce((sum, item) => {
+    const quantity = parseInt(item?.quantity) || 1;
+    return sum + quantity;
+  }, 0);
+  
+  const mrp = cartArray.reduce((sum, item) => {
+    const price = parseFloat(item?.mrp || item?.price) || 0;
+    const quantity = parseInt(item?.quantity) || 1;
+    return sum + (price * quantity);
+  }, 0);
   const deliveryFree = total > 999;
   const estDelivery = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString();
 
