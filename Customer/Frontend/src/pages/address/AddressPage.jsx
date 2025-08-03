@@ -91,80 +91,92 @@ const AddressPage = () => {
   const [modalMode, setModalMode] = useState('add');
   const [modalInitial, setModalInitial] = useState(null);
   const [cart, setCart] = useState([]);
+  const [cartLoading, setCartLoading] = useState(true);
   const [coupon, setCoupon] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
   const [discount, setDiscount] = useState(0);
   const navigate = useNavigate();
 
-  const fetchAddresses = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get('/api/addresses');
-      console.log('🏠 Address data in AddressPage:', res.data);
-      
-      // Handle different response formats
-      let addressData = [];
-      if (res.data && res.data.data && Array.isArray(res.data.data)) {
-        addressData = res.data.data; // New format
-      } else if (Array.isArray(res.data)) {
-        addressData = res.data; // Old format
-      } else {
-        addressData = [];
-      }
-      
-      setAddresses(addressData);
-      setSelectedId(addressData.find(a => a.is_default)?.id || (addressData[0] && addressData[0].id));
-    } catch (err) {
-      console.error('❌ Error fetching addresses in AddressPage:', err);
-      setAddresses([]);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchAddresses(); }, []);
-
-  useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const res = await api.get('/api/cart');
-        console.log('🛒 Cart data in AddressPage:', res.data);
-        
-        // Handle different response formats
-        let cartData = [];
-        if (res.data && res.data.data && Array.isArray(res.data.data)) {
-          cartData = res.data.data; // New format
-        } else if (Array.isArray(res.data)) {
-          cartData = res.data; // Old format
-        } else {
-          cartData = [];
-        }
-        
-        setCart(cartData);
-      } catch (error) {
-        console.error('❌ Error fetching cart in AddressPage:', error);
-        setCart([]);
-      }
-    };
-    
-    fetchCart();
-  }, []);
-
-  // Safe reduce functions
+  // Safe reduce function
   const safeReduce = (array, reducer, initialValue = 0) => {
     if (!Array.isArray(array) || array.length === 0) return initialValue;
     try {
       return array.reduce(reducer, initialValue);
     } catch (error) {
-      console.error('Reduce error in AddressPage:', error);
+      console.error('Reduce error:', error);
       return initialValue;
     }
   };
 
-  const total = safeReduce(cart, (sum, item) => sum + (parseFloat(item?.price) || 0) * (parseInt(item?.quantity) || 1), 0);
-  const totalItems = safeReduce(cart, (sum, item) => sum + (parseInt(item?.quantity) || 1), 0);
-  const mrp = safeReduce(cart, (sum, item) => sum + (parseFloat(item?.mrp || item?.price) || 0) * (parseInt(item?.quantity) || 1), 0);
+  // Calculate totals safely
+  const total = cartLoading ? 0 : safeReduce(cart, (sum, item) => {
+    const price = parseFloat(item?.price) || 0;
+    const quantity = parseInt(item?.quantity) || 1;
+    return sum + (price * quantity);
+  }, 0);
+
+  const totalItems = cartLoading ? 0 : safeReduce(cart, (sum, item) => {
+    const quantity = parseInt(item?.quantity) || 1;
+    return sum + quantity;
+  }, 0);
+
+  const mrp = cartLoading ? 0 : safeReduce(cart, (sum, item) => {
+    const price = parseFloat(item?.mrp || item?.price) || 0;
+    const quantity = parseInt(item?.quantity) || 1;
+    return sum + (price * quantity);
+  }, 0);
+
   const deliveryFree = total > 999;
   const estDelivery = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString();
+
+  const fetchAddresses = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/api/addresses');
+      console.log('🏠 Address data:', res.data);
+      
+      let addressData = [];
+      if (res.data && res.data.data && Array.isArray(res.data.data)) {
+        addressData = res.data.data;
+      } else if (Array.isArray(res.data)) {
+        addressData = res.data;
+      }
+      
+      setAddresses(addressData);
+      setSelectedId(addressData.find(a => a.is_default)?.id || (addressData[0] && addressData[0].id));
+    } catch (err) {
+      console.error('❌ Error fetching addresses:', err);
+      setAddresses([]);
+    }
+    setLoading(false);
+  };
+
+  const fetchCart = async () => {
+    setCartLoading(true);
+    try {
+      const res = await api.get('/api/cart');
+      console.log('🛒 Cart data:', res.data);
+      
+      let cartData = [];
+      if (res.data && res.data.data && Array.isArray(res.data.data)) {
+        cartData = res.data.data;
+      } else if (Array.isArray(res.data)) {
+        cartData = res.data;
+      }
+      
+      console.log('🛒 Final cart data:', cartData);
+      setCart(cartData);
+    } catch (error) {
+      console.error('❌ Error fetching cart:', error);
+      setCart([]);
+    }
+    setCartLoading(false);
+  };
+
+  useEffect(() => { 
+    fetchAddresses(); 
+    fetchCart();
+  }, []);
 
   const handleApplyCoupon = () => {
     if (coupon.trim().toLowerCase() === 'save10') {
@@ -298,7 +310,6 @@ const AddressPage = () => {
                           }}>
                             DELIVER HERE
                           </button>
-                          {/* Responsive Edit/Delete Buttons for mobile: inline with DELIVER HERE */}
                           <div className="flex flex-row gap-2 sm:hidden">
                             <button className="text-blue-600 font-semibold text-sm" onClick={() => handleEdit(addr)}>EDIT</button>
                             <button className="text-red-500 font-semibold text-sm" onClick={() => handleDelete(addr.id)}>DELETE</button>
@@ -306,7 +317,6 @@ const AddressPage = () => {
                         </div>
                       </div>
                     </div>
-                    {/* On desktop/tablet, show buttons in column to the right */}
                     <div className="hidden sm:flex flex-col gap-2 ml-2">
                       <button className="text-blue-600 font-semibold text-sm" onClick={() => handleEdit(addr)}>EDIT</button>
                       <button className="text-red-500 font-semibold text-sm" onClick={() => handleDelete(addr.id)}>DELETE</button>
@@ -339,65 +349,76 @@ const AddressPage = () => {
         <div className="md:col-span-1 sticky top-24 self-start">
           <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
             <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2"><Gift size={20} className="text-pink-400" /> Order Summary</h3>
-            <div className="flex justify-between mb-2 text-gray-700">
-              <span>Total Items</span>
-              <span>{totalItems}</span>
-            </div>
-            <div className="flex justify-between mb-2 text-gray-700">
-              <span>MRP</span>
-              <span className="line-through">₹{mrp.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between mb-2 text-gray-700">
-              <span>Discount</span>
-              <span className="text-green-600">-₹{(mrp - total + discount).toFixed(2)}</span>
-            </div>
-            {discount > 0 && (
-              <div className="flex justify-between mb-2 text-green-700 font-semibold">
-                <span>Coupon Applied</span>
-                <span>-₹{discount}</span>
+            {cartLoading ? (
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-6 bg-gray-200 rounded mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
               </div>
+            ) : (
+              <>
+                <div className="flex justify-between mb-2 text-gray-700">
+                  <span>Total Items</span>
+                  <span>{totalItems}</span>
+                </div>
+                <div className="flex justify-between mb-2 text-gray-700">
+                  <span>MRP</span>
+                  <span className="line-through">₹{mrp.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between mb-2 text-gray-700">
+                  <span>Discount</span>
+                  <span className="text-green-600">-₹{(mrp - total + discount).toFixed(2)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between mb-2 text-green-700 font-semibold">
+                    <span>Coupon Applied</span>
+                    <span>-₹{discount}</span>
+                  </div>
+                )}
+                <div className="flex justify-between mb-2 text-gray-700">
+                  <span>Delivery</span>
+                  <span>{deliveryFree ? <span className="text-green-600 font-bold">Free</span> : '₹49'}</span>
+                </div>
+                <div className="flex justify-between mb-4 text-gray-900 font-bold text-lg border-t pt-4">
+                  <span>Total</span>
+                  <span>₹{(total - discount + (deliveryFree ? 0 : 49)).toFixed(2)}</span>
+                </div>
+                <div className="mb-4 flex items-center gap-2">
+                  <Truck size={18} className="text-blue-500" />
+                  <span className="text-sm text-gray-500">Estimated Delivery: <span className="font-semibold text-gray-700">{estDelivery}</span></span>
+                </div>
+                {deliveryFree && (
+                  <div className="mb-4 flex items-center gap-2">
+                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">Free Shipping</span>
+                  </div>
+                )}
+                <div className="flex gap-2 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Coupon code"
+                    value={coupon}
+                    onChange={e => setCoupon(e.target.value)}
+                    className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    disabled={couponApplied}
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded font-semibold shadow hover:scale-105 transition disabled:opacity-50"
+                    disabled={couponApplied}
+                  >
+                    {couponApplied ? 'Applied' : 'Apply'}
+                  </button>
+                </div>
+                <button
+                  onClick={() => navigate('/payment')}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-bold text-lg shadow-md hover:from-blue-700 hover:to-purple-700 transition mt-2"
+                  disabled={!Array.isArray(cart) || cart.length === 0}
+                >
+                  Continue
+                </button>
+              </>
             )}
-            <div className="flex justify-between mb-2 text-gray-700">
-              <span>Delivery</span>
-              <span>{deliveryFree ? <span className="text-green-600 font-bold">Free</span> : '₹49'}</span>
-            </div>
-            <div className="flex justify-between mb-4 text-gray-900 font-bold text-lg border-t pt-4">
-              <span>Total</span>
-              <span>₹{(total - discount + (deliveryFree ? 0 : 49)).toFixed(2)}</span>
-            </div>
-            <div className="mb-4 flex items-center gap-2">
-              <Truck size={18} className="text-blue-500" />
-              <span className="text-sm text-gray-500">Estimated Delivery: <span className="font-semibold text-gray-700">{estDelivery}</span></span>
-            </div>
-            {deliveryFree && (
-              <div className="mb-4 flex items-center gap-2">
-                <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">Free Shipping</span>
-              </div>
-            )}
-            <div className="flex gap-2 mb-4">
-              <input
-                type="text"
-                placeholder="Coupon code"
-                value={coupon}
-                onChange={e => setCoupon(e.target.value)}
-                className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                disabled={couponApplied}
-              />
-              <button
-                onClick={handleApplyCoupon}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded font-semibold shadow hover:scale-105 transition disabled:opacity-50"
-                disabled={couponApplied}
-              >
-                {couponApplied ? 'Applied' : 'Apply'}
-              </button>
-            </div>
-            <button
-              onClick={() => navigate('/payment')}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-bold text-lg shadow-md hover:from-blue-700 hover:to-purple-700 transition mt-2"
-              disabled={!Array.isArray(cart) || cart.length === 0}
-            >
-              Continue
-            </button>
           </div>
         </div>
       </div>
