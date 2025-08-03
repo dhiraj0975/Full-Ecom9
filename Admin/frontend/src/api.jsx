@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL:'https://admin-backend-six-steel.vercel.app'+'/api',
+  baseURL:+'/api',
   withCredentials: true,
 });
 

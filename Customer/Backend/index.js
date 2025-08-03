@@ -29,7 +29,7 @@ const testDB = async () => {
     if (connected) console.log('✅ Database connected successfully');
     else console.warn('❌ Database connection failed');
   } catch (error) {
-    // console.error('❌ Database connection error:', error);
+    console.error('❌ Database connection error:', error.message);
   }
 };
 
@@ -55,6 +55,7 @@ app.use('/api/addresses', require('./routes/addressRoute'));
 app.use('/api/payments', require('./routes/paymentRoute'));
 app.use('/api/orders', require('./routes/orderRoute'));
 app.use('/api/order-items', require('./routes/orderItemRoute'));
+app.use('/api/test', require('./routes/testRoute'));
 
 // Root route
 app.get('/', (req, res) => {
@@ -68,7 +69,7 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  // console.error('❌ Server Error:', err.stack);
+  console.error('❌ Server Error:', err.message);
   res.status(500).json({ success: false, message: 'Something went wrong!' });
 });
 
