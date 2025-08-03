@@ -26,6 +26,7 @@ const PaymentPage = () => {
   const [upiId, setUpiId] = useState('');
   const [card, setCard] = useState({ number: '', name: '', expiry: '', cvv: '' });
   const [cart, setCart] = useState([]);
+  const [cartLoading, setCartLoading] = useState(true);
   const [coupon, setCoupon] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
   const [discount, setDiscount] = useState(0);
@@ -37,6 +38,7 @@ const PaymentPage = () => {
     const apiUrl = import.meta.env.VITE_API_URL || '';
     
     // Fetch cart with proper error handling
+    setCartLoading(true);
     axios.get(`${apiUrl}/api/cart`, { 
       withCredentials: true 
     }).then(res => {
@@ -58,9 +60,11 @@ const PaymentPage = () => {
       
       console.log('🛒 Final cart data:', cartData);
       setCart(cartData);
+      setCartLoading(false);
     }).catch(error => {
       console.error('❌ Error fetching cart:', error);
       setCart([]);
+      setCartLoading(false);
     });
     
     // Ensure selected_address_id is set
@@ -93,19 +97,19 @@ const PaymentPage = () => {
   // Ensure cart is always an array with proper validation
   const cartArray = Array.isArray(cart) ? cart : [];
   
-  // Add safety checks for reduce operations
-  const total = cartArray.reduce((sum, item) => {
+  // Add safety checks for reduce operations with loading state
+  const total = cartLoading ? 0 : cartArray.reduce((sum, item) => {
     const price = parseFloat(item?.price) || 0;
     const quantity = parseInt(item?.quantity) || 1;
     return sum + (price * quantity);
   }, 0);
   
-  const totalItems = cartArray.reduce((sum, item) => {
+  const totalItems = cartLoading ? 0 : cartArray.reduce((sum, item) => {
     const quantity = parseInt(item?.quantity) || 1;
     return sum + quantity;
   }, 0);
   
-  const mrp = cartArray.reduce((sum, item) => {
+  const mrp = cartLoading ? 0 : cartArray.reduce((sum, item) => {
     const price = parseFloat(item?.mrp || item?.price) || 0;
     const quantity = parseInt(item?.quantity) || 1;
     return sum + (price * quantity);
@@ -438,31 +442,42 @@ const PaymentPage = () => {
           )}
           {message && <div className="mt-8 text-center text-blue-700 font-semibold animate-fadeIn">{message}</div>}
         </div>
-        {/* Right: Order Summary */}
-        <div className="md:w-1/3 p-10 bg-gradient-to-b from-white to-blue-50 flex flex-col gap-4 min-w-[260px]">
-          <div className="bg-white rounded-2xl shadow-xl p-8 mb-2 border border-blue-100">
-            <div className="flex justify-between mb-2 text-gray-700">
-              <span>Price <span className="text-xs text-gray-400">({totalItems} item{totalItems > 1 ? 's' : ''})</span></span>
-              <span>₹{total.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between mb-2 text-gray-700">
-              <span className="flex items-center gap-1">Platform fee <Info size={14} className="text-blue-400" /></span>
-              <span>₹4</span>
-            </div>
-            <div className="flex justify-between mb-2 text-gray-900 font-bold text-lg border-t pt-4">
-              <span>Total Amount</span>
-              <span>₹{(total - discount + (deliveryFree ? 0 : 49) + 4).toFixed(2)}</span>
-            </div>
-            <div className="mt-4 text-green-700 font-semibold text-sm bg-green-50 rounded p-2 flex items-center gap-2">
-              <Gift size={18} /> 5% Cashback <span className="ml-2 text-green-600 font-normal">Claim now with payment offers</span>
-            </div>
-          </div>
-          <div className="bg-gradient-to-r from-green-100 to-blue-100 rounded-xl p-4 flex items-center gap-3 shadow">
-            <CheckCircle className="text-green-600" />
-            <span className="font-semibold text-green-700">100% Buyer Protection</span>
-          </div>
-        </div>
-      </div>
+                          {/* Right: Order Summary */}
+         <div className="md:w-1/3 p-10 bg-gradient-to-b from-white to-blue-50 flex flex-col gap-4 min-w-[260px]">
+           <div className="bg-white rounded-2xl shadow-xl p-8 mb-2 border border-blue-100">
+             {cartLoading ? (
+               <div className="animate-pulse">
+                 <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                 <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                 <div className="h-6 bg-gray-200 rounded mb-4"></div>
+                 <div className="h-4 bg-gray-200 rounded"></div>
+               </div>
+             ) : (
+               <>
+                 <div className="flex justify-between mb-2 text-gray-700">
+                   <span>Price <span className="text-xs text-gray-400">({totalItems} item{totalItems > 1 ? 's' : ''})</span></span>
+                   <span>₹{total.toFixed(2)}</span>
+                 </div>
+                 <div className="flex justify-between mb-2 text-gray-700">
+                   <span className="flex items-center gap-1">Platform fee <Info size={14} className="text-blue-400" /></span>
+                   <span>₹4</span>
+                 </div>
+                 <div className="flex justify-between mb-2 text-gray-900 font-bold text-lg border-t pt-4">
+                   <span>Total Amount</span>
+                   <span>₹{(total - discount + (deliveryFree ? 0 : 49) + 4).toFixed(2)}</span>
+                 </div>
+                 <div className="mt-4 text-green-700 font-semibold text-sm bg-green-50 rounded p-2 flex items-center gap-2">
+                   <Gift size={18} /> 5% Cashback <span className="ml-2 text-green-600 font-normal">Claim now with payment offers</span>
+                 </div>
+               </>
+             )}
+           </div>
+           <div className="bg-gradient-to-r from-green-100 to-blue-100 rounded-xl p-4 flex items-center gap-3 shadow">
+             <CheckCircle className="text-green-600" />
+             <span className="font-semibold text-green-700">100% Buyer Protection</span>
+           </div>
+         </div>
+       </div>
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
