@@ -100,10 +100,22 @@ const AddressPage = () => {
     setLoading(true);
     try {
       const res = await api.get('/api/addresses');
-      const data = res.data;
-      setAddresses(data);
-      setSelectedId(data.find(a => a.is_default)?.id || (data[0] && data[0].id));
+      console.log('🏠 Address data in AddressPage:', res.data);
+      
+      // Handle different response formats
+      let addressData = [];
+      if (res.data && res.data.data && Array.isArray(res.data.data)) {
+        addressData = res.data.data; // New format
+      } else if (Array.isArray(res.data)) {
+        addressData = res.data; // Old format
+      } else {
+        addressData = [];
+      }
+      
+      setAddresses(addressData);
+      setSelectedId(addressData.find(a => a.is_default)?.id || (addressData[0] && addressData[0].id));
     } catch (err) {
+      console.error('❌ Error fetching addresses in AddressPage:', err);
       setAddresses([]);
     }
     setLoading(false);
@@ -112,12 +124,45 @@ const AddressPage = () => {
   useEffect(() => { fetchAddresses(); }, []);
 
   useEffect(() => {
-    api.get('/api/cart').then(res => setCart(res.data));
+    const fetchCart = async () => {
+      try {
+        const res = await api.get('/api/cart');
+        console.log('🛒 Cart data in AddressPage:', res.data);
+        
+        // Handle different response formats
+        let cartData = [];
+        if (res.data && res.data.data && Array.isArray(res.data.data)) {
+          cartData = res.data.data; // New format
+        } else if (Array.isArray(res.data)) {
+          cartData = res.data; // Old format
+        } else {
+          cartData = [];
+        }
+        
+        setCart(cartData);
+      } catch (error) {
+        console.error('❌ Error fetching cart in AddressPage:', error);
+        setCart([]);
+      }
+    };
+    
+    fetchCart();
   }, []);
 
-  const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-  const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-  const mrp = cart.reduce((sum, item) => sum + ((item.mrp || item.price) * (item.quantity || 1)), 0);
+  // Safe reduce functions
+  const safeReduce = (array, reducer, initialValue = 0) => {
+    if (!Array.isArray(array) || array.length === 0) return initialValue;
+    try {
+      return array.reduce(reducer, initialValue);
+    } catch (error) {
+      console.error('Reduce error in AddressPage:', error);
+      return initialValue;
+    }
+  };
+
+  const total = safeReduce(cart, (sum, item) => sum + (parseFloat(item?.price) || 0) * (parseInt(item?.quantity) || 1), 0);
+  const totalItems = safeReduce(cart, (sum, item) => sum + (parseInt(item?.quantity) || 1), 0);
+  const mrp = safeReduce(cart, (sum, item) => sum + (parseFloat(item?.mrp || item?.price) || 0) * (parseInt(item?.quantity) || 1), 0);
   const deliveryFree = total > 999;
   const estDelivery = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString();
 
@@ -349,7 +394,7 @@ const AddressPage = () => {
             <button
               onClick={() => navigate('/payment')}
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-bold text-lg shadow-md hover:from-blue-700 hover:to-purple-700 transition mt-2"
-              disabled={cart.length === 0}
+              disabled={!Array.isArray(cart) || cart.length === 0}
             >
               Continue
             </button>

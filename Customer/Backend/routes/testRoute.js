@@ -56,4 +56,14 @@ router.get('/cookie-test', (req, res) => {
   });
 });
 
+// Test address API
+router.get('/address-test', authenticateToken, async (req, res) => {
+  try {
+    const addressController = require('../controllers/addressController');
+    await addressController.getAddressesByCustomer(req, res);
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Address test failed', error: error.message });
+  }
+});
+
 module.exports = router; 

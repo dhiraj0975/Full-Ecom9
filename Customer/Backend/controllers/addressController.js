@@ -5,9 +5,9 @@ exports.getAddressesByCustomer = async (req, res) => {
     const customer_id = req.user && req.user.id;
     if (!customer_id) return res.status(401).json({ message: 'Unauthorized: customer_id missing' });
     const addresses = await addressModel.getAddressesByCustomer(customer_id);
-    res.status(200).json(addresses);
+    res.status(200).json({ success: true, data: addresses, message: 'Addresses fetched successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching addresses', error });
+    res.status(500).json({ success: false, message: 'Error fetching addresses', error });
   }
 };
 

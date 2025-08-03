@@ -37,79 +37,117 @@ const PaymentPage = () => {
     // Use the configured API base URL
     const apiUrl = import.meta.env.VITE_API_URL || '';
     
-    // Fetch cart with proper error handling
-    setCartLoading(true);
-    axios.get(`${apiUrl}/api/cart`, { 
-      withCredentials: true 
-    }).then(res => {
-      console.log('🛒 Cart data received:', res.data);
-      
-      // Better error handling and data validation
-      let cartData = [];
-      
-      if (res.data && res.data.data && Array.isArray(res.data.data)) {
-        cartData = res.data.data; // New format
-      } else if (Array.isArray(res.data)) {
-        cartData = res.data; // Old format
-      } else if (res.data && Array.isArray(res.data)) {
-        cartData = res.data; // Direct array
-      } else {
-        console.log('⚠️ Invalid cart data format, setting empty array');
-        cartData = [];
-      }
-      
-      console.log('🛒 Final cart data:', cartData);
-      setCart(cartData);
-      setCartLoading(false);
-    }).catch(error => {
-      console.error('❌ Error fetching cart:', error);
-      setCart([]);
-      setCartLoading(false);
+    // Debug environment variable
+    console.log('🔧 Environment check:', {
+      VITE_API_URL: import.meta.env.VITE_API_URL,
+      apiUrl: apiUrl,
+      hasApiUrl: !!apiUrl
     });
     
-    // Ensure selected_address_id is set
-    if (!localStorage.getItem('selected_address_id')) {
-      axios.get(`${apiUrl}/api/addresses`, { 
-        withCredentials: true 
-      }).then(res => {
-        console.log('🏠 Address data received:', res.data);
-        
-        // Handle different response formats
-        let addressData = [];
-        if (res.data && res.data.data && Array.isArray(res.data.data)) {
-          addressData = res.data.data; // New format
-        } else if (Array.isArray(res.data)) {
-          addressData = res.data; // Old format
-        }
-        
-        if (addressData.length > 0) {
-          localStorage.setItem('selected_address_id', addressData[0].id);
-          console.log('🏠 Selected address ID:', addressData[0].id);
-        } else {
-          console.log('⚠️ No addresses found');
-        }
-      }).catch(error => {
-        console.error('❌ Error fetching addresses:', error);
-      });
+    if (!apiUrl) {
+      console.error('❌ VITE_API_URL is not set!');
+      setCart([]);
+      setCartLoading(false);
+      return;
     }
+    
+    // Fetch cart with proper error handling
+    setCartLoading(true);
+    
+    const fetchCart = async () => {
+      try {
+        const res = await axios.get(`${apiUrl}/api/cart`, { 
+          withCredentials: true 
+        });
+        
+        console.log('🛒 Cart data received:', res.data);
+        
+        // Better error handling and data validation
+        let cartData = [];
+        
+        if (res.data && res.data.data && Array.isArray(res.data.data)) {
+          cartData = res.data.data; // New format
+        } else if (Array.isArray(res.data)) {
+          cartData = res.data; // Old format
+        } else if (res.data && Array.isArray(res.data)) {
+          cartData = res.data; // Direct array
+        } else {
+          console.log('⚠️ Invalid cart data format, setting empty array');
+          cartData = [];
+        }
+        
+        console.log('🛒 Final cart data:', cartData);
+        setCart(cartData);
+        setCartLoading(false);
+      } catch (error) {
+        console.error('❌ Error fetching cart:', error);
+        setCart([]);
+        setCartLoading(false);
+      }
+    };
+    
+    fetchCart();
+    
+    // Ensure selected_address_id is set
+    const fetchAddresses = async () => {
+      if (!localStorage.getItem('selected_address_id')) {
+        try {
+          const res = await axios.get(`${apiUrl}/api/addresses`, { 
+            withCredentials: true 
+          });
+          
+          console.log('🏠 Address data received:', res.data);
+          
+          // Handle different response formats
+          let addressData = [];
+          if (res.data && res.data.data && Array.isArray(res.data.data)) {
+            addressData = res.data.data; // New format
+          } else if (Array.isArray(res.data)) {
+            addressData = res.data; // Old format
+          }
+          
+          if (addressData.length > 0) {
+            localStorage.setItem('selected_address_id', addressData[0].id);
+            console.log('🏠 Selected address ID:', addressData[0].id);
+          } else {
+            console.log('⚠️ No addresses found');
+          }
+        } catch (error) {
+          console.error('❌ Error fetching addresses:', error);
+        }
+      }
+    };
+    
+    fetchAddresses();
   }, []);
 
   // Ensure cart is always an array with proper validation
   const cartArray = Array.isArray(cart) ? cart : [];
   
+  // Safe reduce functions with multiple checks
+  const safeReduce = (array, reducer, initialValue = 0) => {
+    if (!Array.isArray(array) || array.length === 0) return initialValue;
+    try {
+      return array.reduce(reducer, initialValue);
+    } catch (error) {
+      console.error('Reduce error:', error);
+      return initialValue;
+    }
+  };
+  
   // Add safety checks for reduce operations with loading state
-  const total = cartLoading ? 0 : cartArray.reduce((sum, item) => {
+  const total = cartLoading ? 0 : safeReduce(cartArray, (sum, item) => {
     const price = parseFloat(item?.price) || 0;
     const quantity = parseInt(item?.quantity) || 1;
     return sum + (price * quantity);
   }, 0);
   
-  const totalItems = cartLoading ? 0 : cartArray.reduce((sum, item) => {
+  const totalItems = cartLoading ? 0 : safeReduce(cartArray, (sum, item) => {
     const quantity = parseInt(item?.quantity) || 1;
     return sum + quantity;
   }, 0);
   
-  const mrp = cartLoading ? 0 : cartArray.reduce((sum, item) => {
+  const mrp = cartLoading ? 0 : safeReduce(cartArray, (sum, item) => {
     const price = parseFloat(item?.mrp || item?.price) || 0;
     const quantity = parseInt(item?.quantity) || 1;
     return sum + (price * quantity);
@@ -130,7 +168,9 @@ const PaymentPage = () => {
 
   const handlePay = async (e) => {
     e.preventDefault();
-    if (cartArray.length === 0 || total <= 0) {
+    
+    // Extra safety checks
+    if (!Array.isArray(cartArray) || cartArray.length === 0 || total <= 0) {
       setMessage('Cart is empty! Please add items to cart.');
       return;
     }
@@ -233,7 +273,8 @@ const PaymentPage = () => {
   const amount = 500;
 
   const handleRazorpaySuccess = async (response) => {
-    if (cartArray.length === 0 || total <= 0) {
+    // Extra safety checks
+    if (!Array.isArray(cartArray) || cartArray.length === 0 || total <= 0) {
       setMessage('Cart is empty! Please add items to cart.');
       return;
     }
