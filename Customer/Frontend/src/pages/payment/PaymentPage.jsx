@@ -221,12 +221,11 @@ const PaymentPage = () => {
            }))
          };
          console.log('OrderData:', orderData);
-                 const apiUrl = import.meta.env.VITE_API_URL || '';
-         const orderRes = await axios.post(`${apiUrl}/api/orders`, orderData, { withCredentials: true });
+                 const orderRes = await axios.post('/api/orders', orderData, { withCredentials: true });
         
         if (orderRes.data.success) {
                      // Step 3: Update Payment with order_id
-           await axios.put(`${apiUrl}/api/payments/${paymentRes.data.payment_id}`, {
+           await axios.put(`/api/payments/${paymentRes.data.payment_id}`, {
              order_id: orderRes.data.order_id
            }, { withCredentials: true });
           
@@ -238,11 +237,11 @@ const PaymentPage = () => {
              price: item.price
            }));
 
-           const orderItemsRes = await axios.post(`${apiUrl}/api/order-items`, { items: orderItems }, { withCredentials: true });
+           const orderItemsRes = await axios.post('/api/order-items', { items: orderItems }, { withCredentials: true });
           
           if (orderItemsRes.data.success) {
                          // Step 4: Clear cart
-             await axios.delete(`${apiUrl}/api/cart/clear`, { withCredentials: true });
+             await axios.delete('/api/cart/clear', { withCredentials: true });
             window.dispatchEvent(new Event('cart-updated'));
             
             // Step 5: Show success and redirect
@@ -323,12 +322,11 @@ const PaymentPage = () => {
              quantity: item.quantity || 1
            }))
          };
-         const apiUrl = import.meta.env.VITE_API_URL || '';
-         const orderRes = await axios.post(`${apiUrl}/api/orders`, orderData, { withCredentials: true });
-        console.log('OrderRes:', orderRes.data);
+                  const orderRes = await axios.post('/api/orders', orderData, { withCredentials: true });
+         console.log('OrderRes:', orderRes.data);
         if (orderRes.data.success) {
                      // 4. Update Payment with order_id
-           await axios.put(`${apiUrl}/api/payments/${paymentRes.data.payment_id}`, {
+           await axios.put(`/api/payments/${paymentRes.data.payment_id}`, {
              order_id: orderRes.data.order_id
            }, { withCredentials: true });
                      // 5. Create Order Items
@@ -338,11 +336,11 @@ const PaymentPage = () => {
              quantity: item.quantity || 1,
              price: item.price
            }));
-                     const orderItemsRes = await axios.post(`${apiUrl}/api/order-items`, { items: orderItems }, { withCredentials: true });
+                     const orderItemsRes = await axios.post('/api/order-items', { items: orderItems }, { withCredentials: true });
           console.log('OrderItemsRes:', orderItemsRes.data);
           if (orderItemsRes.data.success) {
                          // 6. Clear cart
-             await axios.delete(`${apiUrl}/api/cart/clear`, { withCredentials: true });
+             await axios.delete('/api/cart/clear', { withCredentials: true });
             window.dispatchEvent(new Event('cart-updated'));
             // 7. Show success and redirect
             await Swal.fire({
