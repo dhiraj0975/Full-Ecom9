@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
+const { authenticateToken } = require('../middleware/auth');
 
 // Test database connection
 router.get('/db-test', async (req, res) => {
@@ -31,6 +32,28 @@ router.get('/db-test', async (req, res) => {
       }
     });
   }
+});
+
+// Test authentication
+router.get('/auth-test', authenticateToken, (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Authentication successful',
+    user: req.user
+  });
+});
+
+// Test cookies
+router.get('/cookie-test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Cookie test',
+    cookies: req.cookies,
+    headers: {
+      authorization: req.headers.authorization,
+      cookie: req.headers.cookie
+    }
+  });
 });
 
 module.exports = router; 

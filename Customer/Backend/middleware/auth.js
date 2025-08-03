@@ -5,8 +5,8 @@ const authenticateToken = (req, res, next) => {
   console.log('COOKIES:', req.cookies);
   console.log('AUTH HEADER:', req.headers['authorization']);
   try {
-    // Get token from cookie first, then from header as fallback
-    let token = req.cookies.jwt_token;
+    // Get token from multiple sources
+    let token = req.cookies.jwt_token || req.cookies.auth_token;
     
     // Fallback to header if cookie is not present
     if (!token) {

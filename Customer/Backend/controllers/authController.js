@@ -94,11 +94,23 @@ const login = async (req, res) => {
     // Set JWT token in HTTP-only cookie
     res.cookie('jwt_token', data.token, {
       httpOnly: true,
-      secure: false, // dev ke liye false, prod me true
-      sameSite: 'lax', // dev ke liye lax, prod me strict/none
+      secure: process.env.NODE_ENV === 'production', // Vercel me true hona chahiye
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Vercel me none hona chahiye
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      path: '/'
+      path: '/',
+      domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined // Vercel domain ke liye
     });
+    
+    // Also set a non-httpOnly cookie for better compatibility
+    res.cookie('auth_token', data.token, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 24 * 60 * 60 * 1000,
+      path: '/',
+      domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined
+    });
+    
     // Send token and customer both in response
     res.status(200).json({ 
       success: true, 
@@ -117,12 +129,21 @@ const login = async (req, res) => {
 // Logout
 const logout = async (req, res) => {
   try {
-    // Clear the JWT token cookie
+    // Clear both JWT token cookies
     res.clearCookie('jwt_token', {
       httpOnly: true,
-      secure: false, // dev ke liye false, prod me true
-      sameSite: 'lax', // dev ke liye lax, prod me strict/none
-      path: '/'
+      secure: process.env.NODE_ENV === 'production', // Vercel me true hona chahiye
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Vercel me none hona chahiye
+      path: '/',
+      domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined // Vercel domain ke liye
+    });
+    
+    res.clearCookie('auth_token', {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      path: '/',
+      domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined
     });
     
     res.status(200).json({ 
