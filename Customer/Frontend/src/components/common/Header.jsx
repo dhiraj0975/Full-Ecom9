@@ -97,8 +97,9 @@ const Header = () => {
     const updateCartCount = async () => {
       try {
         const res = await getCartApi();
-        setCartCount(res.data.length);
-      } catch {
+        setCartCount(Array.isArray(res.data) ? res.data.length : 0);
+      } catch (error) {
+        console.error('❌ Error updating cart count:', error);
         setCartCount(0);
       }
     };
