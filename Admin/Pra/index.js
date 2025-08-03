@@ -21,7 +21,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "https://admin-frontend-chi-fawn.vercel.app" || "http://localhost:5173/",
+  origin: process.env.CORS_ORIGIN || "http://localhost:3001/",
   credentials: true
 }));
 
