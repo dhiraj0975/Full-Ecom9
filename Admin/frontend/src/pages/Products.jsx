@@ -48,7 +48,7 @@ function Products() {
       quantity: "",
       subcategory_id: "",
       retailer_id: "",
-      image_url: "",
+      image_url: "", // 👈 Fix here
       status: "available",
       description: "",
     };
