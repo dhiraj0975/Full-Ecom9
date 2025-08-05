@@ -112,9 +112,19 @@ function Products() {
   };
 
   const handleAddOrUpdate = async () => {
-    const { name, price, quantity, subcategory_id, retailer_id, description, status } = newProduct;
+    const { name, price, quantity, subcategory_id, retailer_id, description, status, image_url } = newProduct;
+    console.log("Update Data:", { name, price, quantity, subcategory_id, retailer_id, description, status, image_url });
     if (!name || !price || !quantity || !subcategory_id || !description || !image_url || !status || !retailer_id) {
-      throw new Error("All fields including subcategory_id and retailer_id are required");
+      throw new Error(`Missing fields: ${[
+        !name && "name",
+        !price && "price",
+        !quantity && "quantity",
+        !subcategory_id && "subcategory_id",
+        !description && "description",
+        !image_url && "image_url",
+        !status && "status",
+        !retailer_id && "retailer_id"
+      ].filter(Boolean).join(", ")}`);
     }
     try {
       const formData = new FormData();
@@ -125,6 +135,7 @@ function Products() {
       formData.append('retailer_id', retailer_id);
       formData.append('description', description);
       formData.append('status', status);
+      formData.append('image_url', image_url); // 👈 ADD THIS LINE
       if (image) formData.append('image', image);
       if (editingId) {
         await updateProduct(editingId, formData);
@@ -418,8 +429,8 @@ function Products() {
                           </button>
                         </td>
                       </tr>
-                    ))
-                  ) : (
+                    )))
+                  : (
                     <tr>
                       <td colSpan="8" className="text-center p-4 text-gray-500">
                         No products found.

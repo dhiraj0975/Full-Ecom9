@@ -6,6 +6,9 @@ exports.createProduct = async (req, res) => {
     if (req.file) {
       data.image_url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
     }
+    if (!data.name || !data.price || !data.quantity || !data.subcategory_id || !data.description || !data.image_url || !data.status || !data.retailer_id) {
+      throw new Error("All fields including subcategory_id and retailer_id are required");
+    }
     const result = await Product.create(data);
     res.status(201).json({ message: "Product created", productId: result.insertId });
   } catch (err) {
@@ -38,10 +41,11 @@ exports.updateProduct = async (req, res) => {
     if (req.file) {
       data.image_url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
     }
+    console.log("Update Data:", data); // 👈 Debug log
     await Product.update(req.params.id, data);
     res.json({ message: "Product updated" });
   } catch (err) {
-    res.status(500).json({ message: "Update failed", error: err.message });
+    res.status(500).json({ message: "Update failed", error: err.message, data: req.body });
   }
 };
 

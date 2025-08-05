@@ -19,6 +19,7 @@ productRoutes.get("/", isAdmin, getAllProducts);
 // Get product by ID
 productRoutes.get("/:id", isAdmin, getProductById);
 
+
 // Update product
 productRoutes.put("/:id", upload.single('image'), updateProduct);
 
