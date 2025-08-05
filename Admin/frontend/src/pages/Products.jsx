@@ -113,8 +113,8 @@ function Products() {
 
   const handleAddOrUpdate = async () => {
     const { name, price, quantity, subcategory_id, retailer_id, description, status } = newProduct;
-    if (!name || !price || !quantity || !description || !subcategory_id || !retailer_id) {
-      return toast.warn("⚠️ Please fill all required fields");
+    if (!name || !price || !quantity || !subcategory_id || !description || !image_url || !status || !retailer_id) {
+      throw new Error("All fields including subcategory_id and retailer_id are required");
     }
     try {
       const formData = new FormData();
