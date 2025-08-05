@@ -469,6 +469,7 @@ function Products() {
               </h2>
 
               <div className="space-y-4">
+                {/* Name, Price, Quantity Inputs */}
                 {["name", "price", "quantity"].map((field) => (
                   <input
                     key={field}
@@ -480,6 +481,8 @@ function Products() {
                     placeholder={field.replace("_", " ").charAt(0).toUpperCase() + field.replace("_", " ").slice(1)}
                   />
                 ))}
+
+                {/* Image Upload */}
                 <input
                   className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   name="image"
@@ -487,8 +490,24 @@ function Products() {
                   accept="image/*"
                   onChange={handleImageChange}
                 />
-                {editingId && newProduct.image_url && (
-                  <img src={newProduct.image_url} alt="Product" className="mt-2 w-24 h-24 object-cover rounded" />
+
+                {/* Image URL Input */}
+                <input
+                  className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  name="image_url"
+                  type="text"
+                  value={newProduct.image_url}
+                  onChange={handleInputChange}
+                  placeholder="Or paste Image URL here"
+                />
+
+                {/* Preview Image */}
+                {(image || newProduct.image_url) && (
+                  <img
+                    src={image ? URL.createObjectURL(image) : newProduct.image_url}
+                    alt="Product"
+                    className="mt-2 w-24 h-24 object-cover rounded"
+                  />
                 )}
 
                 <select
