@@ -55,11 +55,15 @@ const updateCategory = async (req, res) => {
     return res.status(400).json({ success: false, message: "Category name is required" });
   }
 
-  let img_url = null;
+  let img_url = "";
   if (req.file) {
     img_url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
   } else if (req.body.img_url) {
     img_url = req.body.img_url;
+  } else {
+    // Fetch old img_url from DB
+    const oldCategory = await categoryModel.getCategoryById(id);
+    img_url = oldCategory ? oldCategory.img_url : "";
   }
 
   try {
@@ -69,8 +73,8 @@ const updateCategory = async (req, res) => {
     }
     res.json({ success: true, message: "Category updated" });
   } catch (err) {
-    console.error("Update category error:", err);
-    res.status(500).json({ success: false, message: "Failed to update category" });
+    console.error("Update category error:", err); // Isko aise likhein:
+    res.status(500).json({ success: false, message: "Failed to update category", error: err });
   }
 };
 
