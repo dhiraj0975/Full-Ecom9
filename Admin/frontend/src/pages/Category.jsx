@@ -61,7 +61,11 @@ function Category() {
     try {
       const formData = new FormData();
       formData.append('name', form.name);
-      if (image) formData.append('image', image);
+      if (image) {
+        formData.append('image', image); // file upload
+      } else if (form.img_url) {
+        formData.append('img_url', form.img_url); // url upload
+      }
       if (editId !== null) {
         await updateProductCategory(editId, formData);
         toast.success("Category updated successfully!");
@@ -550,6 +554,15 @@ function Category() {
                   accept="image/*"
                   className="border p-2 rounded-md w-full focus:outline-blue-500 transition-all duration-300"
                   onChange={handleImageChange}
+                />
+                <div className="text-center text-gray-500 my-2">OR</div>
+                <input
+                  type="text"
+                  name="img_url"
+                  placeholder="Paste image URL here"
+                  className="border p-2 rounded-md w-full focus:outline-blue-500 transition-all duration-300"
+                  value={form.img_url}
+                  onChange={handleChange}
                 />
                 {/* Image preview for edit mode */}
                 {editId && form.img_url && (
