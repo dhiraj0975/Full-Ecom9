@@ -25,6 +25,8 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+
 // Test database connection
 const testDB = async () => {
   try {

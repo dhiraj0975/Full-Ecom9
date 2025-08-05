@@ -1,4 +1,5 @@
 const { pool } = require('../config/db');
+const getAllCategories = require('../models/categoryModule')
 
 // Get all categories
 exports.getAllCategories = async (req, res) => {
@@ -11,7 +12,7 @@ exports.getAllCategories = async (req, res) => {
       user: process.env.DB_USER
     });
     
-    const [categories] = await pool.query('SELECT * FROM categories WHERE is_active = 1');
+    const [categories] = await pool.query('SELECT * FROM categories');
     console.log(`✅ Successfully fetched ${categories.length} categories`);
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
