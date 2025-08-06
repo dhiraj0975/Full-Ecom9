@@ -66,7 +66,17 @@ const Cart = () => {
       await removeFromCart(id);
       setCart(cart.filter(item => item.id !== id));
       window.dispatchEvent(new Event('cart-updated'));
-      toast.success('Product removed from cart!', { position: 'top-center' });
+      // REMOVE Toastify, ADD SweetAlert2 success
+      await Swal.fire({
+        icon: 'success',
+        title: 'Removed!',
+        text: 'Product removed from cart!',
+        timer: 1500,
+        showConfirmButton: false,
+        position: 'center',
+        customClass: { popup: 'swal2-center' }
+      });
+      // toast.success('Product removed from cart!', { position: 'top-center' }); // REMOVE THIS LINE
     } catch (err) {
       alert('Failed to remove item from cart');
     } finally {
@@ -311,4 +321,4 @@ const Cart = () => {
   );
 };
 
-export default Cart; 
+export default Cart;
