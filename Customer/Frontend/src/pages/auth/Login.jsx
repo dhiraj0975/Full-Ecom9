@@ -128,14 +128,7 @@ const Login = () => {
           >
             Welcome Back
           </motion.h2>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-gray-600 text-lg"
-          >
-            Sign in to your account
-          </motion.p>
+        
         </motion.div>
         {/* Login Form */}
         <motion.div
