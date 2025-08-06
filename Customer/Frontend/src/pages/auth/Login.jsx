@@ -92,7 +92,7 @@ const Login = () => {
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        className="w-full max-w-sm space-y-8 relative z-10 mx-auto max-h-full overflow-y-visible"
+        className="w-full max-w-xs sm:max-w-sm md:max-w-md space-y-8 relative z-10 mx-auto max-h-full overflow-y-visible px-2 py-4 sm:px-4 sm:py-8"
       >
         {/* Header */}
         <motion.div
@@ -280,4 +280,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;
