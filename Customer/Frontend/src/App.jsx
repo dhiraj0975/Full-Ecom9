@@ -25,7 +25,8 @@ function App() {
     '/register',
     '/forgot-password',
     '/verify-otp',
-    '/reset-password'
+    '/reset-password',
+    '/products/:id'
   ];
 
   const hideHeader = hideHeaderRoutes.includes(location.pathname);

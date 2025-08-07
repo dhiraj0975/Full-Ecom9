@@ -9,7 +9,7 @@ import CheckoutStepper from '../../components/common/CheckoutStepper';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const EmptyCartSVG = () => (
-  <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
+  <svg width="100" height="100" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-3">
     <rect x="10" y="40" width="100" height="60" rx="12" fill="#f3f4f6" />
     <rect x="25" y="55" width="70" height="30" rx="6" fill="#e0e7ef" />
     <circle cx="40" cy="90" r="6" fill="#cbd5e1" />
@@ -47,15 +47,14 @@ const Cart = () => {
   const estDelivery = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString();
 
   const handleRemove = async (id) => {
-    // SweetAlert2 confirmation dialog
     const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you really want to remove this product from your cart?',
+      title: 'Remove Item?',
+      text: 'Remove this product from cart?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, remove it!',
+      confirmButtonText: 'Yes, remove',
       cancelButtonText: 'Cancel',
       reverseButtons: true,
       customClass: { popup: 'swal2-center' }
@@ -66,23 +65,30 @@ const Cart = () => {
       await removeFromCart(id);
       setCart(cart.filter(item => item.id !== id));
       window.dispatchEvent(new Event('cart-updated'));
-      // REMOVE Toastify, ADD SweetAlert2 success
+      
+      // Show success notification with SweetAlert instead of toast
       await Swal.fire({
-        icon: 'success',
         title: 'Removed!',
-        text: 'Product removed from cart!',
-        timer: 1500,
+        text: 'Product has been removed from cart.',
+        icon: 'success',
+        timer: 2000,
         showConfirmButton: false,
-        position: 'center',
-        customClass: { popup: 'swal2-center' }
+        toast: true,
+        position: 'top-end'
       });
-      // toast.success('Product removed from cart!', { position: 'top-center' }); // REMOVE THIS LINE
     } catch (err) {
-      alert('Failed to remove item from cart');
+      // Show error notification with SweetAlert
+      await Swal.fire({
+        title: 'Error!',
+        text: 'Failed to remove item from cart',
+        icon: 'error',
+        confirmButtonColor: '#3085d6'
+      });
     } finally {
       setRemovingId(null);
     }
   };
+
   const handleQty = async (id, type) => {
     const item = cart.find(i => i.id === id);
     if (!item) return;
@@ -98,6 +104,7 @@ const Cart = () => {
       setQtyUpdatingId(null);
     }
   };
+
   const handleApplyCoupon = () => {
     if (coupon.trim().toLowerCase() === 'save10') {
       setDiscount(Math.round(total * 0.1));
@@ -111,13 +118,13 @@ const Cart = () => {
 
   if (!Array.isArray(cart) || cart.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[40vh] text-center bg-gradient-to-br from-blue-50 to-purple-50 px-2 sm:px-4">
+      <div className="flex flex-col items-center justify-center min-h-[35vh] text-center bg-gradient-to-br from-blue-50 to-purple-50 px-4">
         <EmptyCartSVG />
-        <h2 className="text-xl sm:text-2xl font-bold mb-1">Your cart is empty</h2>
-        <p className="text-gray-500 mb-4 text-sm sm:text-base">Looks like you haven't added anything yet.</p>
+        <h2 className="text-lg font-semibold mb-2">Your cart is empty</h2>
+        <p className="text-gray-500 mb-4 text-sm">Add some products to get started.</p>
         <button
           onClick={() => navigate('/products')}
-          className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded font-semibold shadow hover:scale-105 transition text-sm sm:text-base"
+          className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 rounded font-medium shadow hover:scale-105 transition text-sm"
         >
           Continue Shopping
         </button>
@@ -128,13 +135,13 @@ const Cart = () => {
   return (
     <>
       <ToastContainer position="top-center" autoClose={2000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
-      <div className="max-w-7xl mx-auto px-1 sm:px-3 py-4 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="max-w-6xl mx-auto px-2 py-3 grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Cart Items */}
         <div className="lg:col-span-2">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-3 flex items-center gap-2">
-            <ShoppingCart className="h-7 w-7 sm:h-9 sm:w-8 text-blue-600" /> Your Cart
+          <h2 className="text-xl font-bold mb-3 flex items-center gap-2">
+            <ShoppingCart className="h-5 w-5 text-blue-600" /> Cart ({totalItems})
           </h2>
-          <ul className="space-y-4 sm:space-y-6">
+          <ul className="space-y-3">
             <AnimatePresence>
             {Array.isArray(cart) && cart.map(item => {
               let stockStatus = '';
@@ -143,8 +150,8 @@ const Cart = () => {
                 stockStatus = 'Out of Stock';
                 stockClass = 'text-red-500';
               } else if (item.product_quantity <= 5) {
-                stockStatus = `Only ${item.product_quantity} left!`;
-                stockClass = 'text-yellow-600';
+                stockStatus = `${item.product_quantity} left`;
+                stockClass = 'text-orange-500';
               } else {
                 stockStatus = 'In Stock';
                 stockClass = 'text-green-600';
@@ -152,91 +159,83 @@ const Cart = () => {
               return (
                   <motion.li
                     key={item.id}
-                    initial={{ opacity: 0, y: 30, scale: 0.97 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 30, scale: 0.95 }}
-                    transition={{ type: 'spring', duration: 0.4 }}
-                    className="group flex flex-col sm:flex-row items-center bg-white/60 backdrop-blur-lg rounded-xl shadow p-3 sm:p-4 gap-4 sm:gap-6 border border-blue-100 hover:shadow-blue-200 hover:scale-[1.01] transition-all relative overflow-hidden"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex items-center bg-white rounded-lg shadow-sm p-3 gap-3 border hover:shadow-md transition-shadow relative"
                   >
                   {/* Remove Button */}
                   <button
                     onClick={() => handleRemove(item.id)}
-                    className="absolute top-2 right-2 text-gray-400 hover:text-red-600 p-1 rounded-full transition z-10"
-                    title="Remove from cart"
+                    className="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1 transition"
+                    title="Remove"
                     disabled={removingId === item.id}
                   >
-                    {removingId === item.id ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+                    {removingId === item.id ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
                   </button>
+                  
                   {/* Product Image */}
-                  <div className="w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200 shadow group-hover:scale-105 group-hover:shadow-md transition-transform bg-white flex items-center justify-center mb-2 sm:mb-0">
+                  <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden border bg-gray-50">
                     <img
                       src={item.image_url}
                       alt={item.name}
-                      className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      className="object-contain w-full h-full"
                     />
                   </div>
+                  
                   {/* Product Info */}
-                  <div className="flex-1 w-full">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-1 sm:gap-2">
-                      <div>
-                        <div className="font-semibold text-base sm:text-lg mb-0 flex items-center gap-2 flex-wrap">
-                          {item.name}
-                          {item.category_name && (
-                            <span className="ml-2 px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded font-semibold flex items-center gap-1">
-                              <Tag size={12} /> {item.category_name}
-                            </span>
-                          )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 pr-2">
+                        <h3 className="font-medium text-sm text-gray-900 truncate">{item.name}</h3>
+                        {item.category_name && (
+                          <span className="inline-block mt-1 px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded">
+                            {item.category_name}
+                          </span>
+                        )}
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="font-semibold text-sm text-blue-700">₹{item.price}</span>
+                          <span className="text-gray-400 line-through text-xs">₹{item.mrp || (item.price * 1.2).toFixed(0)}</span>
+                          <span className="bg-green-50 text-green-600 px-1.5 py-0.5 rounded text-xs">
+                            {Math.round(100 - (item.price / (item.mrp || (item.price * 1.2)) * 100))}% off
+                          </span>
                         </div>
-                        <div className="text-gray-500 text-xs sm:text-sm mb-1">Brand: <span className="font-medium text-gray-800">BrandX</span></div>
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="text-base sm:text-lg font-bold text-blue-700">₹{item.price}</span>
-                          <span className="text-gray-400 line-through text-xs sm:text-sm">₹{item.mrp || (item.price * 1.2).toFixed(0)}</span>
-                          <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-xs font-semibold">{Math.round(100 - (item.price / (item.mrp || (item.price * 1.2)) * 100))}% off</span>
-                        </div>
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className={`font-semibold text-xs ${stockClass}`}>{stockStatus}</span>
-                          <span className="text-gray-400 text-xs">|</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`text-xs font-medium ${stockClass}`}>{stockStatus}</span>
+                          <span className="text-gray-300">•</span>
                           <span className="text-gray-500 text-xs">Free Returns</span>
                         </div>
-                        <div className="flex items-center gap-1 mt-1">
-                          <button
-                            onClick={() => handleQty(item.id, 'dec')}
-                            className="p-0.5 rounded-full border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
-                            aria-label="Decrease quantity"
-                            disabled={qtyUpdatingId === item.id || item.quantity <= 1}
-                          >
-                            <Minus size={14} />
-                          </button>
-                          <input
-                            type="number"
-                            min={1}
-                            max={item.product_quantity}
-                            value={qtyUpdatingId === item.id ? '' : (item.quantity || 1)}
-                            onChange={e => {
-                              const val = Math.max(1, Math.min(item.product_quantity, Number(e.target.value)));
-                              handleQty(item.id, null, val);
-                            }}
-                            className="w-12 px-1 py-0.5 border rounded text-base text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            disabled={qtyUpdatingId === item.id}
-                          />
-                          <button
-                            onClick={() => handleQty(item.id, 'inc')}
-                            className="p-0.5 rounded-full border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
-                            aria-label="Increase quantity"
-                            disabled={qtyUpdatingId === item.id || item.quantity >= item.product_quantity}
-                          >
-                            <Plus size={14} />
-                          </button>
-                          {item.quantity >= item.product_quantity && (
-                            <span className="text-xs text-red-500 ml-1">Max stock</span>
-                          )}
-                          {qtyUpdatingId === item.id && <Loader2 className="animate-spin ml-1 text-blue-500" size={14} />}
-                        </div>
                       </div>
-                      <div className="flex flex-col items-end mt-2 sm:mt-0">
-                        <div className="text-base sm:text-lg font-bold text-blue-600">₹{(item.price * (item.quantity || 1)).toFixed(2)}</div>
-                        <span className="text-xs text-gray-400">Subtotal</span>
+                      
+                      <div className="text-right">
+                        <div className="font-semibold text-sm text-gray-900">₹{(item.price * (item.quantity || 1)).toFixed(0)}</div>
+                        <div className="text-xs text-gray-500">Subtotal</div>
                       </div>
+                    </div>
+                    
+                    {/* Quantity Controls */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <button
+                        onClick={() => handleQty(item.id, 'dec')}
+                        className="w-6 h-6 rounded border border-gray-300 hover:bg-gray-100 flex items-center justify-center disabled:opacity-50"
+                        disabled={qtyUpdatingId === item.id || item.quantity <= 1}
+                      >
+                        <Minus size={12} />
+                      </button>
+                      <span className="w-8 text-center text-sm font-medium">
+                        {qtyUpdatingId === item.id ? '...' : (item.quantity || 1)}
+                      </span>
+                      <button
+                        onClick={() => handleQty(item.id, 'inc')}
+                        className="w-6 h-6 rounded border border-gray-300 hover:bg-gray-100 flex items-center justify-center disabled:opacity-50"
+                        disabled={qtyUpdatingId === item.id || item.quantity >= item.product_quantity}
+                      >
+                        <Plus size={12} />
+                      </button>
+                      {item.quantity >= item.product_quantity && (
+                        <span className="text-xs text-red-500 ml-1">Max</span>
+                      )}
                     </div>
                   </div>
                   </motion.li>
@@ -245,71 +244,81 @@ const Cart = () => {
             </AnimatePresence>
           </ul>
         </div>
+        
         {/* Order Summary */}
-        <div className="lg:col-span-1 w-full lg:w-auto sticky top-20 self-start mt-6 lg:mt-0">
+        <div className="lg:col-span-1 sticky top-20 self-start">
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ type: 'spring', duration: 0.5 }}
-            className="bg-white/70 backdrop-blur-lg rounded-xl shadow p-4 border-2 border-transparent bg-clip-padding w-full max-w-md mx-auto lg:mx-0"
-            style={{ borderImage: 'linear-gradient(90deg, #a1c4fd 0%, #c2e9fb 100%) 1' }}
+            transition={{ duration: 0.4 }}
+            className="bg-white rounded-lg shadow-sm p-4 border"
           >
-            <h3 className="text-lg sm:text-xl font-bold mb-2 text-gray-800 flex items-center gap-2"><Gift size={16} className="text-pink-400" /> Order Summary</h3>
-            <div className="flex justify-between mb-1 text-gray-700 text-sm sm:text-base">
-              <span>Total Items</span>
-              <span>{totalItems}</span>
-            </div>
-            <div className="flex justify-between mb-1 text-gray-700 text-sm sm:text-base">
-              <span>MRP</span>
-              <span className="line-through">₹{mrp.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between mb-1 text-gray-700 text-sm sm:text-base">
-              <span>Discount</span>
-              <span className="text-green-600">-₹{(mrp - total + discount).toFixed(2)}</span>
-            </div>
-            {discount > 0 && (
-              <div className="flex justify-between mb-1 text-green-700 font-semibold text-sm sm:text-base">
-                <span>Coupon Applied</span>
-                <span>-₹{discount}</span>
+            <h3 className="font-semibold mb-3 text-gray-800 flex items-center gap-2">
+              <Gift size={16} className="text-pink-500" /> Order Summary
+            </h3>
+            
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>Items ({totalItems})</span>
+                <span>₹{total.toFixed(0)}</span>
               </div>
-            )}
-            <div className="flex justify-between mb-1 text-gray-700 text-sm sm:text-base">
-              <span>Delivery</span>
-              <span>{deliveryFree ? <span className="text-green-600 font-bold">Free</span> : '₹49'}</span>
+              <div className="flex justify-between">
+                <span>MRP</span>
+                <span className="line-through text-gray-500">₹{mrp.toFixed(0)}</span>
+              </div>
+              <div className="flex justify-between text-green-600">
+                <span>Discount</span>
+                <span>-₹{(mrp - total + discount).toFixed(0)}</span>
+              </div>
+              {discount > 0 && (
+                <div className="flex justify-between text-green-600 font-medium">
+                  <span>Coupon</span>
+                  <span>-₹{discount}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span>Delivery</span>
+                <span>{deliveryFree ? <span className="text-green-600 font-medium">Free</span> : '₹49'}</span>
+              </div>
+              <hr className="my-2" />
+              <div className="flex justify-between font-semibold text-base">
+                <span>Total</span>
+                <span>₹{(total - discount + (deliveryFree ? 0 : 49)).toFixed(0)}</span>
+              </div>
             </div>
-            <div className="flex justify-between mb-2 text-gray-900 font-bold text-base sm:text-lg border-t pt-2">
-              <span>Total</span>
-              <span>₹{(total - discount + (deliveryFree ? 0 : 49)).toFixed(2)}</span>
+            
+            <div className="mt-3 text-xs text-gray-500 flex items-center gap-1">
+              <Truck size={12} />
+              <span>Delivery by {estDelivery}</span>
             </div>
-            <div className="mb-2 flex items-center gap-2">
-              <Truck size={14} className="text-blue-500" />
-              <span className="text-xs sm:text-sm text-gray-500">Estimated Delivery: <span className="font-semibold text-gray-700">{estDelivery}</span></span>
-            </div>
+            
             {deliveryFree && (
-              <div className="mb-2 flex items-center gap-2">
-                <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-xs font-semibold">Free Shipping</span>
+              <div className="mt-2">
+                <span className="bg-green-50 text-green-600 px-2 py-1 rounded text-xs font-medium">Free Shipping</span>
               </div>
             )}
-            <div className="flex gap-1 mb-2">
+            
+            <div className="flex gap-2 mt-3">
               <input
                 type="text"
                 placeholder="Coupon code"
                 value={coupon}
                 onChange={e => setCoupon(e.target.value)}
-                className="flex-1 px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm sm:text-base"
+                className="flex-1 px-2 py-1.5 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 disabled={couponApplied}
               />
               <button
                 onClick={handleApplyCoupon}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded font-semibold shadow hover:scale-105 transition text-sm sm:text-base disabled:opacity-50"
+                className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-blue-600 transition disabled:opacity-50"
                 disabled={couponApplied}
               >
                 {couponApplied ? 'Applied' : 'Apply'}
               </button>
             </div>
+            
             <button
               onClick={() => navigate('/address')}
-              className="w-full bg-gradient-to-r from-pink-500 to-blue-600 text-white py-2 rounded-lg font-bold text-base sm:text-lg shadow-md hover:from-pink-600 hover:to-blue-700 transition mt-1"
+              className="w-full bg-gradient-to-r from-pink-500 to-blue-600 text-white py-2.5 rounded-lg font-medium text-sm shadow hover:from-pink-600 hover:to-blue-700 transition mt-3"
             >
               Proceed to Checkout
             </button>

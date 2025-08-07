@@ -14,6 +14,7 @@ const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({
+  
     name: '',
     email: '',
     phone: '',

@@ -2,8 +2,7 @@ const jwt = require('jsonwebtoken');
 
 // Verify JWT token middleware
 const authenticateToken = (req, res, next) => {
-  console.log('COOKIES:', req.cookies);
-  console.log('AUTH HEADER:', req.headers['authorization']);
+ 
   try {
     // Get token from multiple sources
     let token = req.cookies.jwt_token || req.cookies.auth_token;
