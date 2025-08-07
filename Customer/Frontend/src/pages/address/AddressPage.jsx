@@ -199,16 +199,35 @@ const AddressPage = () => {
     try {
       if (modalMode === 'edit' && modalInitial) {
         await api.put(`/api/addresses/${modalInitial.id}`, form);
-        toast.success('Address updated!', { position: 'top-center' });
+        await Swal.fire({
+          title: 'Updated!',
+          text: 'Address has been updated successfully.',
+          icon: 'success',
+          confirmButtonColor: '#28a745',
+          timer: 2000,
+          showConfirmButton: false
+        });
       } else {
         await api.post('/api/addresses', form);
-        toast.success('Address added!', { position: 'top-center' });
+        await Swal.fire({
+          title: 'Added!',
+          text: 'New address has been added successfully.',
+          icon: 'success',
+          confirmButtonColor: '#28a745',
+          timer: 2000,
+          showConfirmButton: false
+        });
       }
       fetchAddresses();
       setModalOpen(false);
       resetForm();
     } catch {
-      toast.error('Failed to save address', { position: 'top-center' });
+      await Swal.fire({
+        title: 'Error!',
+        text: 'Failed to save address. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#d33'
+      });
     }
     setModalLoading(false);
   };
