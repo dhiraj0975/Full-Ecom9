@@ -45,6 +45,18 @@ export const getOrderItems = async (orderId) => {
 };
 
 export const getOrderInvoice = async (orderId) => {
-  const response = await api.get(`/api/orders/${orderId}/invoice`);
-  return response.data;
+  try {
+    console.log('📄 Downloading invoice for order:', orderId);
+    const response = await api.get(`/api/orders/${orderId}/invoice`, {
+      responseType: 'blob', // Important for PDF download
+      headers: {
+        'Accept': 'application/pdf'
+      }
+    });
+    console.log('✅ Invoice downloaded successfully');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Invoice download error:', error);
+    throw error;
+  }
 }; 
