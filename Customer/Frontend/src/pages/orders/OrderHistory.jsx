@@ -45,21 +45,49 @@ const OrderHistory = () => {
 
   useEffect(() => {
     fetchOrders();
+    
+    // Listen for order updates (when new order is placed)
+    const handleOrderUpdate = () => {
+      console.log('🔄 Order update detected, refreshing orders...');
+      fetchOrders();
+    };
+    
+    window.addEventListener('order-placed', handleOrderUpdate);
+    
+    return () => {
+      window.removeEventListener('order-placed', handleOrderUpdate);
+    };
   }, []);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await getCustomerOrders();
-      setOrders(response.orders || []);
+      
+      console.log('🔍 Starting to fetch orders...');
+      const ordersData = await getCustomerOrders(); // No need to pass customerId, service will handle it
+      console.log('📋 Received orders data:', ordersData);
+      
+      setOrders(Array.isArray(ordersData) ? ordersData : []);
     } catch (error) {
-      console.error('Error fetching orders:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops! Something went wrong',
-        text: 'Failed to load your orders. Please try again.',
-        confirmButtonColor: '#3B82F6',
-      });
+      console.error('❌ Error fetching orders:', error);
+      
+      if (error.message === 'Customer not logged in') {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Please Login',
+          text: 'You need to login to view your orders.',
+          confirmButtonColor: '#3B82F6',
+        }).then(() => {
+          navigate('/login');
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops! Something went wrong',
+          text: 'Failed to load your orders. Please try again.',
+          confirmButtonColor: '#3B82F6',
+        });
+      }
     } finally {
       setLoading(false);
     }
