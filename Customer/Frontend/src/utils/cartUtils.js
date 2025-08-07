@@ -1,4 +1,4 @@
-// Cart utility functions for localStorage
+// src/utils/cartUtils.js
 export function getCart() {
   const cart = localStorage.getItem('cart');
   return cart ? JSON.parse(cart) : [];
@@ -29,4 +29,8 @@ export function clearCart() {
 
 export function getCartCount() {
   return getCart().reduce((sum, item) => sum + (item.quantity || 1), 0);
-} 
+}
+
+export function getCartTotal() {
+  return getCart().reduce((total, item) => total + item.price * item.quantity, 0);
+}
