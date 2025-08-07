@@ -8,10 +8,16 @@ const RazorpayButton = ({ amount, onSuccess, buttonText }) => {
   const handlePayment = async () => {
     try {
       console.log('Razorpay frontend key:', import.meta.env.VITE_RAZORPAY_KEY_ID);
-      const { data: order } = await axios.post("/api/payments/razorpay/order", {
-        amount,
-        currency: "INR",
-      });
+
+      const backendURL = import.meta.env.VITE_BACKEND_BASE_URL || "http://localhost:5002";
+
+      const { data: order } = await axios.post(
+        `${backendURL}/api/payments/razorpay/order`,
+        {
+          amount,
+          currency: "INR",
+        }
+      );
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
@@ -49,4 +55,4 @@ const RazorpayButton = ({ amount, onSuccess, buttonText }) => {
   );
 };
 
-export default RazorpayButton; 
+export default RazorpayButton;
