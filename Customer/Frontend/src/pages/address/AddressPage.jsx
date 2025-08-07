@@ -361,14 +361,14 @@ const AddressPage = () => {
 
                 {/* Address Selection */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
-                      <span className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+                      <span className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">
                         2
                       </span>
                       Select Address
                     </h2>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
                       {addresses.length} saved
                     </span>
                   </div>
