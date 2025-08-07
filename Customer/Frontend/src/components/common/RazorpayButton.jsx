@@ -9,7 +9,7 @@ const RazorpayButton = ({ amount, onSuccess, buttonText }) => {
     try {
       console.log('Razorpay frontend key:', import.meta.env.VITE_RAZORPAY_KEY_ID);
 
-      const backendURL = import.meta.env.VITE_BACKEND_BASE_URL || "http://localhost:5002";
+      const backendURL = import.meta.env.VITE_API_URL || "http://localhost:5002";
 
       const { data: order } = await axios.post(
         `${backendURL}/api/payments/razorpay/order`,
