@@ -25,12 +25,14 @@ function App() {
     '/register',
     '/forgot-password',
     '/verify-otp',
-    '/reset-password',
-    '/products/:id'
+    '/reset-password'
   ];
 
   const hideHeader = hideHeaderRoutes.includes(location.pathname);
-  const hideBackButton = hideBackButtonRoutes.includes(location.pathname);
+  
+  // Check if current path is product detail page
+  const isProductDetailPage = location.pathname.startsWith('/products/') && location.pathname !== '/products';
+  const hideBackButton = hideBackButtonRoutes.includes(location.pathname) || isProductDetailPage;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-purple-50">
@@ -39,7 +41,7 @@ function App() {
       {!hideHeader && <Header />}
 
       <main className="flex-1">
-        {!hideBackButton && <BackButton />} {/* ✅ Back Button Here */}
+        {!hideBackButton && <BackButton />}
         <AppRoutes />
       </main>
 
