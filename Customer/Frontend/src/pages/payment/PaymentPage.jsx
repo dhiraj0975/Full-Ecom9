@@ -29,6 +29,55 @@ const PaymentPage = () => {
   const [processing, setProcessing] = useState(false); // Add processing state
   const navigate = useNavigate();
 
+  const recordPaymentFailure = async (failureData) => {
+    try {
+      await api.post('/api/payment-failures', {
+        customer_id: parseInt(getCustomerId()),
+        amount: finalAmount,
+        payment_method: selected,
+        cart_items: cartArray,
+        total_items: totalItems,
+        delivery_charge: deliveryFree ? 0 : 49,
+        discount: discount,
+        ...failureData
+      });
+    } catch (error) {
+      console.error('Failed to record payment failure:', error);
+    }
+  };
+
+  const handleRazorpayFailure = async (error) => {
+    console.log('💥 Razorpay payment failed:', error);
+    
+    // Record failure
+    await recordPaymentFailure({
+      failure_reason: error.error || 'Razorpay payment failed',
+      failure_code: error.code || 'RAZORPAY_ERROR',
+      error_message: error.error,
+      failure_type: getFailureType(error.code),
+      razorpay_payment_id: error.razorpay_payment_id
+    });
+    
+    // Show error to user
+    Swal.fire({
+      title: '❌ Payment Failed',
+      text: error.error || 'Payment could not be processed',
+      icon: 'error',
+      confirmButtonColor: '#EF4444'
+    });
+  };
+
+  const getFailureType = (code) => {
+    const typeMap = {
+      'BAD_REQUEST_ERROR': 'invalid_card',
+      'GATEWAY_ERROR': 'network',
+      'NETWORK_ERROR': 'network',
+      'SERVER_ERROR': 'timeout',
+      'PAYMENT_CANCELLED': 'cancelled'
+    };
+    return typeMap[code] || 'other';
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setCartLoading(true);
@@ -432,6 +481,7 @@ const PaymentPage = () => {
               <RazorpayButton
                 amount={finalAmount}
                 onSuccess={handleRazorpaySuccess}
+                onFailure={handleRazorpayFailure}
                 buttonText={`Pay ₹${finalAmount.toFixed(2)} with Razorpay`}
                 disabled={processing}
               />
