@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import Layout from '../Component/Layout';
 import { getOrders, updateOrderStatus, getOrderStatistics, searchOrders, getCustomerOrders } from '../api/orderApi';
@@ -74,15 +74,58 @@ const Orders = () => {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      let data = await getOrders(selectedStatus || null);
+      console.log('🔄 Loading orders... This may take a moment');
+      
+      // Show user that request is processing
+      toast.info('Loading orders... Please wait', { autoClose: 2000 });
+      
+      const response = await getOrders(selectedStatus || null);
+      console.log('📦 Raw API response:', response);
+      
+      // Handle response
+      let data = [];
+      if (Array.isArray(response)) {
+        data = response;
+      } else if (response?.data && Array.isArray(response.data)) {
+        data = response.data;
+      } else if (response?.orders && Array.isArray(response.orders)) {
+        data = response.orders;
+      } else {
+        data = [];
+      }
+      
+      // Apply customer filter
       if (filteredCustomer) {
         data = data.filter(order =>
           order.customer_email && order.customer_email.toLowerCase() === filteredCustomer.toLowerCase()
         );
       }
+      
       setOrders(data);
+      
     } catch (error) {
-      toast.error(error.message || 'Failed to load orders');
+      console.error('❌ Error loading orders:', error);
+      
+      let errorMessage = 'Failed to load orders';
+      
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timeout. Backend server is slow or down.';
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = 'Connection timeout. Please check if backend server is running.';
+      } else if (error.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please login again.';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'Orders endpoint not found';
+      } else if (error.response?.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -90,10 +133,13 @@ const Orders = () => {
 
   const loadStatistics = async () => {
     try {
+      console.log('📊 Loading statistics...');
       const data = await getOrderStatistics();
-      setStatistics(data);
+      console.log('📈 Statistics loaded:', data);
+      setStatistics(data || {});
     } catch (error) {
-      console.error('Failed to load statistics:', error);
+      console.error('❌ Failed to load statistics:', error);
+      setStatistics({});
     }
   };
 
@@ -104,22 +150,55 @@ const Orders = () => {
       loadOrders();
       loadStatistics();
     } catch (error) {
-      toast.error(error.message || 'Failed to update order status');
+      console.error('Error updating order status:', error);
+      const errorMessage = error?.message || error?.error?.message || 'Failed to update order status';
+      toast.error(errorMessage);
     }
   };
 
   const handleSearch = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    
     if (!searchTerm.trim() && searchField !== 'status') {
       loadOrders();
       return;
     }
+    
     setLoading(true);
     try {
-      let filtered = orders;
+      console.log('🔍 Searching orders...');
+      let allOrders = await getOrders(selectedStatus || null);
+      
+      // Handle undefined/null response properly
+      if (!allOrders) {
+        console.warn('⚠️ getOrders returned undefined/null in search');
+        allOrders = [];
+      } else if (!Array.isArray(allOrders)) {
+        console.warn('⚠️ getOrders returned non-array in search:', allOrders);
+        if (allOrders.orders && Array.isArray(allOrders.orders)) {
+          allOrders = allOrders.orders;
+        } else if (allOrders.data && Array.isArray(allOrders.data)) {
+          allOrders = allOrders.data;
+        } else {
+          allOrders = [];
+        }
+      }
+      
+      console.log('🔍 Search - All orders:', allOrders.length);
+      
+      if (filteredCustomer) {
+        allOrders = allOrders.filter(order =>
+          order.customer_email && order.customer_email.toLowerCase() === filteredCustomer.toLowerCase()
+        );
+        console.log('🔍 Search - After customer filter:', allOrders.length);
+      }
+      
+      // Apply search filter
+      let filtered = allOrders;
       const term = searchTerm.toLowerCase();
+      
       if (searchField === 'all') {
-        filtered = orders.filter(order =>
+        filtered = allOrders.filter(order =>
           order.id.toString().includes(term) ||
           (order.customer_name && order.customer_name.toLowerCase().includes(term)) ||
           (order.customer_email && order.customer_email.toLowerCase().includes(term)) ||
@@ -129,23 +208,28 @@ const Orders = () => {
           (order.payment_method && order.payment_method.toLowerCase().includes(term))
         );
       } else if (searchField === 'id') {
-        filtered = orders.filter(order => order.id.toString().includes(term));
+        filtered = allOrders.filter(order => order.id.toString().includes(term));
       } else if (searchField === 'customer') {
-        filtered = orders.filter(order => order.customer_name && order.customer_name.toLowerCase().includes(term));
+        filtered = allOrders.filter(order => order.customer_name && order.customer_name.toLowerCase().includes(term));
       } else if (searchField === 'email') {
-        filtered = orders.filter(order => order.customer_email && order.customer_email.toLowerCase().includes(term));
+        filtered = allOrders.filter(order => order.customer_email && order.customer_email.toLowerCase().includes(term));
       } else if (searchField === 'amount') {
-        filtered = orders.filter(order => order.total_amount && order.total_amount.toString().includes(term));
+        filtered = allOrders.filter(order => order.total_amount && order.total_amount.toString().includes(term));
       } else if (searchField === 'status') {
-        filtered = orders.filter(order => !searchTerm || order.order_status === searchTerm);
+        filtered = allOrders.filter(order => !searchTerm || order.order_status === searchTerm);
       } else if (searchField === 'date') {
-        filtered = orders.filter(order => order.placed_at && new Date(order.placed_at).toLocaleDateString('en-IN').toLowerCase().includes(term));
+        filtered = allOrders.filter(order => order.placed_at && new Date(order.placed_at).toLocaleDateString('en-IN').toLowerCase().includes(term));
       } else if (searchField === 'payment_method') {
-        filtered = orders.filter(order => order.payment_method && order.payment_method.toLowerCase().includes(term));
+        filtered = allOrders.filter(order => order.payment_method && order.payment_method.toLowerCase().includes(term));
       }
+      
+      console.log('🔍 Search - Final filtered:', filtered.length);
       setOrders(filtered);
     } catch (error) {
-      toast.error(error.message || 'Failed to search orders');
+      console.error('❌ Error searching orders:', error);
+      const errorMessage = error?.message || error?.response?.data?.message || 'Failed to search orders';
+      toast.error(errorMessage);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -201,23 +285,29 @@ const Orders = () => {
   };
     
   // Calculate total items for filtered orders
-  const totalItems = orders.reduce((sum, order) => {
-    if (order.items && order.items.length > 0) {
-      return sum + order.items.reduce((s, item) => s + (item.quantity || 0), 0);
-    }
-    return sum;
-  }, 0);
+  const totalItems = useMemo(() => {
+    return orders.reduce((sum, order) => {
+      if (order.items && order.items.length > 0) {
+        return sum + order.items.reduce((s, item) => s + (item.quantity || 0), 0);
+      }
+      return sum;
+    }, 0);
+  }, [orders]);
 
   const fetchAddress = async (addressId) => {
     if (!addressId) return null;
     if (addressMap[addressId]) return addressMap[addressId];
+    
     try {
       const res = await getAddressById(addressId);
       if (res && res.data) {
         setAddressMap((prev) => ({ ...prev, [addressId]: res.data }));
         return res.data;
       }
-    } catch (e) {
+    } catch (error) {
+      console.error(`Failed to fetch address ${addressId}:`, error);
+      // Set a placeholder to avoid repeated failed requests
+      setAddressMap((prev) => ({ ...prev, [addressId]: { error: true } }));
       return null;
     }
   };
@@ -233,6 +323,22 @@ const Orders = () => {
     }
     // eslint-disable-next-line
   }, [expandedOrderId]);
+
+  useEffect(() => {
+    // Fetch addresses for all orders when orders load
+    const fetchAllAddresses = async () => {
+      const addressIds = [...new Set(orders.map(order => order.address_id).filter(Boolean))];
+      for (const addressId of addressIds) {
+        if (!addressMap[addressId]) {
+          await fetchAddress(addressId);
+        }
+      }
+    };
+    
+    if (orders.length > 0) {
+      fetchAllAddresses();
+    }
+  }, [orders]);
 
   return (
     <Layout>
@@ -631,4 +737,16 @@ const Orders = () => {
   );
 };
 
+
 export default Orders; 
+
+
+
+
+
+
+
+
+
+
+

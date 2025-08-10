@@ -1,3 +1,4 @@
+
 import httpClient from './httpClient';
 import { ENDPOINTS } from './config.js';
 
@@ -62,10 +63,19 @@ export const getOrdersByDateRange = async (startDate, endDate) => {
 export const getOrders = async (status = null) => {
   try {
     const params = status ? { status } : {};
+    console.log('🔍 API: Making request with params:', params);
+    
     const response = await httpClient.get('/orders', { params });
-    return response.data;
+    console.log('🔍 API: Full response:', response);
+    console.log('🔍 API: Response data:', response.data);
+    console.log('🔍 API: Response status:', response.status);
+    
+    // Return the data directly, not response.data
+    return response.data || [];
   } catch (error) {
-    throw error.response?.data || { message: 'Failed to fetch orders' };
+    console.error('🔍 API: Error in getOrders:', error);
+    console.error('🔍 API: Error response:', error.response);
+    throw error.response?.data || error;
   }
 };
 

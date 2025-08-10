@@ -15,6 +15,7 @@ const paymentMethods = [
   { label: 'Wallet', value: 'wallet', icon: <span className="inline-block w-3 h-3 rounded-full bg-orange-400 mr-2" /> },
 ];
 
+
 const PaymentPage = () => {
   const [selected, setSelected] = useState('upi');
   const [upiId, setUpiId] = useState('');

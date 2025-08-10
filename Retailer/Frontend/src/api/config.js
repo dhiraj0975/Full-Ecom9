@@ -1,9 +1,9 @@
 // API Configuration
 const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL + "/api" || "http://localhost:5001/api" || "http://localhost:3001/api" || " http://localhost:5173/" ,
-  TIMEOUT: 10000,
+  BASE_URL: import.meta.env.VITE_API_BASE_URL + "/api" || "http://localhost:5001/api",
+  TIMEOUT: 60000, // Increased to 60 seconds
   RETRY_ATTEMPTS: 3,
-  RETRY_DELAY: 1000,
+  RETRY_DELAY: 2000, // Increased delay
 };
 
 // API Endpoints

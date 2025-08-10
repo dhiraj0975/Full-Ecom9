@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+// const compression = require('compression'); // Comment out this line
 const { testConnection } = require('./Config/Db');
 const errorMiddleware = require('./middleware/errorMiddleware');
 const retailerRoutes = require('./Routes/retailerRoutes');
@@ -10,11 +11,6 @@ const subcategoriesRouter = require('./Routes/subcategoryRoutes');
 const orderRouter = require('./Routes/orderRoutes');
 const customerRoutes = require('./Routes/customerRoutes');
 const customerAddressRoutes = require('./Routes/customerAddressRoutes');
-
-// const customerRoutes = require('./Routes/customerRoutes');
-
-
-
 
 const app = express();
 
@@ -26,6 +22,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+// app.use(compression()); // Comment out this line
 
 // Disable X-Powered-By header for security
 app.disable('x-powered-by');
