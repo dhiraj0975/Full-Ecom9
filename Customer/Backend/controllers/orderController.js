@@ -13,60 +13,74 @@ exports.createOrder = async (req, res) => {
     delivery_charge,
     discount,
     payment_method,
-    order_items // Array of {product_id, quantity}
+    order_items
   } = req.body;
 
   if (!customer_id || !total_amount) {
     return res.status(400).json({ success: false, message: 'customer_id and total_amount are required.' });
   }
 
-  const orderData = {
-    customer_id,
-    address_id,
-    payment_id,
-    order_status,
-    total_amount,
-    delivery_charge,
-    discount,
-    payment_method
-  };
-
   try {
-    // Create the order
-    Order.create(orderData, async (err, result) => {
-      if (err) {
-        console.error('Order create error:', err);
-        return res.status(500).json({ success: false, message: 'Failed to create order', error: err.message });
-      }
-
-      const orderId = result.insertId;
-
-      // Update product quantities if order_items are provided
-      if (order_items && Array.isArray(order_items) && order_items.length > 0) {
-        try {
-          for (const item of order_items) {
-            const { product_id, quantity } = item;
-            if (product_id && quantity) {
-              await updateProductQuantity(product_id, quantity);
-            }
+    // Check stock before creating order
+    if (order_items && Array.isArray(order_items) && order_items.length > 0) {
+      for (const item of order_items) {
+        const { product_id, quantity } = item;
+        if (product_id && quantity) {
+          const [productRows] = await pool.query('SELECT quantity FROM products WHERE id = ?', [product_id]);
+          const product = productRows[0];
+          
+          if (!product) {
+            return res.status(400).json({ 
+              success: false, 
+              message: `Product with ID ${product_id} not found` 
+            });
           }
-        } catch (error) {
-          console.error('Error updating product quantities:', error);
-          // Note: Order is already created, but product quantities couldn't be updated
-          // In a production system, you might want to handle this differently
-          return res.status(500).json({ 
-            success: false, 
-            message: 'Order created but failed to update product quantities', 
-            error: error.message 
-          });
+          
+          if (product.quantity < quantity) {
+            return res.status(400).json({ 
+              success: false, 
+              message: `Insufficient stock for product ID ${product_id}. Available: ${product.quantity}, Required: ${quantity}` 
+            });
+          }
         }
       }
+    }
 
-      res.status(201).json({ success: true, order_id: orderId });
+    // Create order directly with SQL query (without created_at)
+    const [result] = await pool.query(
+      `INSERT INTO orders (customer_id, address_id, payment_id, order_status, total_amount, delivery_charge, discount, payment_method) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [customer_id, address_id, payment_id, order_status || 'pending', total_amount, delivery_charge || 0, discount || 0, payment_method]
+    );
+
+    const orderId = result.insertId;
+
+    // Update product quantities
+    if (order_items && Array.isArray(order_items) && order_items.length > 0) {
+      for (const item of order_items) {
+        const { product_id, quantity } = item;
+        if (product_id && quantity) {
+          await pool.query(
+            'UPDATE products SET quantity = quantity - ? WHERE id = ?',
+            [quantity, product_id]
+          );
+        }
+      }
+    }
+
+    res.status(201).json({ 
+      success: true, 
+      order_id: orderId,
+      message: 'Order created successfully' 
     });
+
   } catch (error) {
     console.error('Order creation error:', error);
-    return res.status(500).json({ success: false, message: 'Failed to create order', error: error.message });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to create order', 
+      error: error.message 
+    });
   }
 };
 
@@ -299,4 +313,143 @@ exports.downloadInvoice = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to generate invoice', error: error.message });
   }
-}; 
+};
+
+// Cancel order
+exports.cancelOrder = async (req, res) => {
+  const orderId = req.params.id;
+  const { reason } = req.body;
+  
+  try {
+    // Get order details first
+    const [orderRows] = await pool.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+    const order = orderRows[0];
+    
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    
+    // Check if order can be cancelled
+    if (!['pending', 'confirmed'].includes(order.order_status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Order cannot be cancelled. It may have already been shipped or delivered.' 
+      });
+    }
+    
+    // Update order status to cancelled
+    await pool.query('UPDATE orders SET order_status = ? WHERE id = ?', ['cancelled', orderId]);
+    
+    // Insert cancellation record
+    await pool.query(
+      'INSERT INTO order_cancellations (order_id, customer_id, reason) VALUES (?, ?, ?)',
+      [orderId, order.customer_id, reason || 'No reason provided']
+    );
+    
+    res.json({ 
+      success: true, 
+      message: 'Order cancelled successfully' 
+    });
+    
+  } catch (error) {
+    console.error('Cancel order error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to cancel order', 
+      error: error.message 
+    });
+  }
+};
+
+// Cancel order
+exports.cancelOrder = async (req, res) => {
+  const orderId = req.params.id;
+  const { reason } = req.body;
+  
+  try {
+    // Get order details first
+    const [orderRows] = await pool.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+    const order = orderRows[0];
+    
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    
+    // Check if order can be cancelled
+    if (!['pending', 'confirmed'].includes(order.order_status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Order cannot be cancelled. It may have already been shipped or delivered.' 
+      });
+   }
+    
+    // Update order status to cancelled
+    await pool.query('UPDATE orders SET order_status = ? WHERE id = ?', ['cancelled', orderId]);
+    
+    // Insert cancellation record
+    await pool.query(
+      'INSERT INTO order_cancellations (order_id, customer_id, reason) VALUES (?, ?, ?)',
+      [orderId, order.customer_id, reason || 'No reason provided']
+    );
+    
+    res.json({ 
+      success: true, 
+      message: 'Order cancelled successfully' 
+    });
+    
+  } catch (error) {
+    console.error('Cancel order error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to cancel order', 
+      error: error.message 
+    });
+  }
+};
+
+
+// Cancel order
+exports.cancelOrder = async (req, res) => {
+  const orderId = req.params.id;
+  const { reason } = req.body;
+  
+  try {
+    // Get order details first
+    const [orderRows] = await pool.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+    const order = orderRows[0];
+    
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    
+    // Check if order can be cancelled
+    if (!['pending', 'confirmed'].includes(order.order_status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Order cannot be cancelled. It may have already been shipped or delivered.' 
+      });
+    }
+    
+    // Update order status to cancelled
+    await pool.query('UPDATE orders SET order_status = ? WHERE id = ?', ['cancelled', orderId]);
+    
+    // Insert cancellation record
+    await pool.query(
+      'INSERT INTO order_cancellations (order_id, customer_id, reason) VALUES (?, ?, ?)',
+      [orderId, order.customer_id, reason || 'No reason provided']
+    );
+    
+    res.json({ 
+      success: true, 
+      message: 'Order cancelled successfully' 
+    });
+    
+  } catch (error) {
+    console.error('Cancel order error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to cancel order', 
+      error: error.message 
+    });
+  }
+};

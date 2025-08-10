@@ -59,4 +59,21 @@ export const getOrderInvoice = async (orderId) => {
     console.error('❌ Invoice download error:', error);
     throw error;
   }
-}; 
+};
+
+export const cancelOrder = async (orderId, reason) => {
+  try {
+    console.log('🔄 Cancelling order:', orderId, 'with reason:', reason);
+    const response = await api.post(`/api/orders/${orderId}/cancel`, {
+      reason
+    });
+    console.log('✅ Order cancelled successfully:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Cancel order error:', error);
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to cancel order');
+  }
+};

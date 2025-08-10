@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCustomerOrders, getOrderById, getOrderItems, getOrderInvoice } from '../../services/orderService';
+import { getCustomerOrders, getOrderById, getOrderItems, getOrderInvoice, cancelOrder } from '../../services/orderService';
 import { getAddress } from '../../services/addressService';
 import {
   Package,
@@ -41,6 +41,7 @@ const OrderHistory = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [downloadingInvoiceId, setDownloadingInvoiceId] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [cancellingOrderId, setCancellingOrderId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -247,6 +248,68 @@ const OrderHistory = () => {
       });
     } finally {
       setDownloadingInvoiceId(null);
+    }
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    const { value: reason } = await Swal.fire({
+      title: 'Cancel Order',
+      text: 'Are you sure you want to cancel this order?',
+      input: 'textarea',
+      inputLabel: 'Reason for cancellation (optional)',
+      inputPlaceholder: 'Please provide a reason...',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Cancel Order',
+      cancelButtonText: 'Keep Order',
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#6B7280',
+      inputValidator: (value) => {
+        if (!value || value.trim().length < 5) {
+          return 'Please provide a reason (minimum 5 characters)';
+        }
+      }
+    });
+
+    if (reason) {
+      setCancellingOrderId(orderId);
+      try {
+        await cancelOrder(orderId, reason.trim());
+        
+        // Update local state
+        setOrders(prev => prev.map(order => 
+          order.id === orderId 
+            ? { ...order, order_status: 'cancelled' }
+            : order
+        ));
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Order Cancelled',
+          text: 'Your order has been cancelled successfully.',
+          confirmButtonColor: '#10B981',
+          timer: 3000
+        });
+
+        // Refresh orders to get updated data
+        fetchOrders();
+        
+      } catch (error) {
+        console.error('❌ Order cancellation failed:', error);
+        
+        let errorMessage = 'Failed to cancel order. Please try again.';
+        if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Cancellation Failed',
+          text: errorMessage,
+          confirmButtonColor: '#EF4444'
+        });
+      } finally {
+        setCancellingOrderId(null);
+      }
     }
   };
 
@@ -467,6 +530,29 @@ const OrderHistory = () => {
                               </div>
                               
                               <div className="flex items-center gap-2">
+                                {/* Cancel Order Button - Only show for pending/confirmed orders */}
+                                {['pending', 'confirmed'].includes(order.order_status?.toLowerCase()) && (
+                                  <button
+                                    onClick={() => handleCancelOrder(order.id)}
+                                    disabled={cancellingOrderId === order.id}
+                                    className="flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                    title="Cancel Order"
+                                  >
+                                    {cancellingOrderId === order.id ? (
+                                      <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        <span className="hidden sm:inline">Cancelling...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <XCircle className="h-4 w-4" />
+                                        <span className="hidden sm:inline">Cancel</span>
+                                      </>
+                                    )}
+                                  </button>
+                                )}
+
+                                {/* Download Invoice Button */}
                                 <button
                                   onClick={() => handleDownloadInvoice(order.id)}
                                   disabled={downloadingInvoiceId === order.id}
@@ -486,6 +572,7 @@ const OrderHistory = () => {
                                   )}
                                 </button>
                                 
+                                {/* View Details Button */}
                                 <button
                                   onClick={() => handleToggleExpand(order.id, order.address_id)}
                                   disabled={fetchingDetails === order.id}

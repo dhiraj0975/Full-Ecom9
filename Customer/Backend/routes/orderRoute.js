@@ -26,4 +26,7 @@ router.delete('/:id', orderController.deleteOrder);
 // Download invoice as PDF
 router.get('/:id/invoice', orderController.downloadInvoice);
 
+// Cancel order
+router.post('/:id/cancel', orderController.cancelOrder);
+
 module.exports = router; 

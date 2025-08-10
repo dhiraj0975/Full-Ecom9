@@ -232,14 +232,32 @@ const PaymentPage = () => {
       }
     } catch (err) {
       console.error('❌ Payment error:', err);
-      setMessage('Payment error: ' + (err.response?.data?.message || err.message));
+      
+      let errorMessage = 'Something went wrong. Please try again.';
+      
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+        
+        // Special handling for stock issues
+        if (errorMessage.includes('Insufficient stock') || errorMessage.includes('failed to update product quantities')) {
+          errorMessage = 'Some items in your cart are out of stock. Please update your cart and try again.';
+        }
+      }
+      
+      setMessage('Payment error: ' + errorMessage);
       
       Swal.fire({
         title: '❌ Payment Failed',
-        text: err.response?.data?.message || err.message || 'Something went wrong. Please try again.',
+        text: errorMessage,
         icon: 'error',
         confirmButtonColor: '#EF4444',
-        confirmButtonText: 'Try Again'
+        confirmButtonText: 'Update Cart',
+        showCancelButton: true,
+        cancelButtonText: 'Try Again'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/cart'); // Redirect to cart to update quantities
+        }
       });
     } finally {
       setProcessing(false);
