@@ -60,7 +60,7 @@ const Login = () => {
                   onChange={handleChange}
                   required
                   placeholder="Type your email"
-                  className="w-full pl-10 pr-4 py-3 border-b-2 border-gray-200 focus:border-pink-400 outline-none"
+                  className="w-full rounded-full pl-10 pr-4 py-3 border-b-2 border-gray-200 focus:border-pink-400 outline-none"
                 />
               </div>
               <div className="relative">
@@ -72,7 +72,7 @@ const Login = () => {
                   onChange={handleChange}
                   required
                   placeholder="Type your password"
-                  className="w-full pl-10 pr-4 py-3 border-b-2 border-gray-200 focus:border-pink-400 outline-none"
+                  className="w-full rounded-full pl-10 pr-4 py-3 border-b-2 border-gray-200 focus:border-pink-400 outline-none"
                 />
               </div>
               {error && <div className="text-red-500 text-sm bg-red-50 p-2 rounded">{error}</div>}
