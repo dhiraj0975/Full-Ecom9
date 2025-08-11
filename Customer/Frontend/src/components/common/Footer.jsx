@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Youtube, HelpCircle, Gift, UserPlus, ShoppingBag, CreditCard, Star } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Youtube, HelpCircle, Gift, UserPlus, Star } from 'lucide-react';
 
 const columns = [
   {
@@ -46,7 +46,7 @@ const columns = [
 ];
 
 const address = [
-  "CustomerStore Pvt. Ltd.",
+  "E-commerce Pvt. Ltd.",
   "123, E-Commerce Park,",
   "Tech City, India - 560103",
   "CIN : U12345IN2024PTC000001",
@@ -54,14 +54,14 @@ const address = [
 ];
 
 const socialLinks = [
-  { icon: <Facebook />, url: 'https://facebook.com' },
-  { icon: <Twitter />, url: 'https://twitter.com' },
-  { icon: <Instagram />, url: 'https://instagram.com' },
-  { icon: <Youtube />, url: 'https://youtube.com' },
+  { icon: <Facebook size={18} />, url: 'https://facebook.com' },
+  { icon: <Twitter size={18} />, url: 'https://twitter.com' },
+  { icon: <Instagram size={18} />, url: 'https://instagram.com' },
+  { icon: <Youtube size={18} />, url: 'https://youtube.com' },
 ];
 
 const bottomLinks = [
-  { icon: <UserPlus className="h-5 w-5" />, label: 'Become a Seller', url: '/become-seller' },
+  { icon: <UserPlus className="h-5 w-5" />, label: 'Become a Seller', url: 'https://retailer-frontend.vercel.app' },
   { icon: <Star className="h-5 w-5" />, label: 'Advertise', url: '/advertise' },
   { icon: <Gift className="h-5 w-5" />, label: 'Gift Cards', url: '/gift-cards' },
   { icon: <HelpCircle className="h-5 w-5" />, label: 'Help Center', url: '/help' },
@@ -72,18 +72,26 @@ const paymentIcons = [
 ];
 
 const Footer = () => (
-  <footer className="bg-gradient-to-r from-[#0a174e] via-[#3a0ca3] to-[#720026] text-white pt-12">
+  <footer className="bg-gradient-to-br from-[#0a174e] via-[#3a0ca3] to-[#720026] text-white pt-12">
+    {/* Top Section */}
     <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-5 gap-8 pb-10 border-b border-white/20">
       {columns.map((col, idx) => (
         <div key={idx}>
-          <h4 className="text-xs font-bold text-white/70 mb-4 tracking-widest">{col.heading}</h4>
+          <h4 className="text-sm font-bold text-yellow-300 mb-4 tracking-widest relative after:content-[''] after:w-8 after:h-[2px] after:bg-yellow-400 after:absolute after:-bottom-1 after:left-0">
+            {col.heading}
+          </h4>
           <ul className="space-y-2">
             {col.links.map((link, i) => (
               <li key={i}>
                 {link.url.startsWith('http') ? (
-                  <a href={link.url} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-blue-100 text-sm">{link.label}</a>
+                  <a href={link.url} target="_blank" rel="noopener noreferrer"
+                    className="hover:underline hover:text-yellow-200 text-sm transition">
+                    {link.label}
+                  </a>
                 ) : (
-                  <Link to={link.url} className="hover:underline hover:text-blue-100 text-sm">{link.label}</Link>
+                  <Link to={link.url} className="hover:underline hover:text-yellow-200 text-sm transition">
+                    {link.label}
+                  </Link>
                 )}
               </li>
             ))}
@@ -92,37 +100,45 @@ const Footer = () => (
       ))}
       {/* Address & Social */}
       <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
-        <h4 className="text-xs font-bold text-white/70 mb-4 tracking-widest">Mail Us:</h4>
+        <h4 className="text-sm font-bold text-yellow-300 mb-4 tracking-widest relative after:content-[''] after:w-8 after:h-[2px] after:bg-yellow-400 after:absolute after:-bottom-1 after:left-0">
+          Mail Us:
+        </h4>
         <address className="not-italic text-sm leading-6 text-white/90">
           {address.map((line, i) => <div key={i}>{line}</div>)}
         </address>
         <div className="mt-4">
-          <h4 className="text-xs font-bold text-white/70 mb-2 tracking-widest">Social</h4>
-          <div className="flex gap-4">
+          <h4 className="text-sm font-bold text-yellow-300 mb-2 tracking-widest">Social</h4>
+          <div className="flex gap-3">
             {socialLinks.map((s, i) => (
-              <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="hover:text-blue-200 transition">{s.icon}</a>
+              <a key={i} href={s.url} target="_blank" rel="noopener noreferrer"
+                className="p-2 bg-white/10 rounded-full hover:bg-yellow-400 hover:text-black transition">
+                {s.icon}
+              </a>
             ))}
           </div>
         </div>
       </div>
     </div>
+
     {/* Bottom Bar */}
-    <div className="bg-gradient-to-r from-[#06102a] via-[#1a0841] to-[#3d002e] py-4 px-4 mt-0 flex flex-col md:flex-row items-center justify-between gap-4">
-      <div className="flex flex-wrap gap-6 items-center">
+    <div className="bg-black/30 py-4 px-4 mt-0 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="flex flex-wrap gap-6 items-center justify-center md:justify-start">
         {bottomLinks.map((b, i) => (
-          <Link key={i} to={b.url} className="flex items-center gap-2 text-yellow-200 font-semibold hover:underline">
+          <Link key={i} to={b.url} className="flex items-center gap-2 text-yellow-200 font-semibold hover:underline transition">
             {b.icon} {b.label}
           </Link>
         ))}
       </div>
       <div className="text-white/80 text-xs">© {new Date().getFullYear()} CustomerStore.com</div>
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-3 items-center">
         {paymentIcons.map((src, i) => (
-          <img key={i} src={src} alt="Payment" className="h-6 w-auto" />
+          <div key={i} className="bg-white rounded p-1 shadow-md">
+            <img src={src} alt="Payment" className="h-6 w-auto" />
+          </div>
         ))}
       </div>
     </div>
   </footer>
 );
 
-export default Footer; 
+export default Footer;

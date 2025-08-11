@@ -290,16 +290,17 @@ const Header = () => {
           {/* Right: All nav/auth buttons + Become a Seller */}
           <div className="hidden md:flex items-center gap-4">
             {navAuthButtons}
-            <motion.button
-              variants={navBtnVariants}
-              initial="initial"
-              whileHover="hover"
-              onClick={() => navigate('/become-seller')}
-              className="px-6 py-2.5 border border-orange-500 text-orange-600 font-semibold rounded-full bg-white hover:bg-orange-50 transition ml-2"
-              style={{ minWidth: '180px' }}
-            >
-              Become a Seller
-            </motion.button>
+                      <motion.button
+            variants={navBtnVariants}
+            initial="initial"
+            whileHover="hover"
+            onClick={() => window.open("https://retailer-frontend.vercel.app", "_blank")}
+            className="px-6 py-2.5 border border-orange-500 text-orange-600 font-semibold rounded-full bg-white hover:bg-orange-50 transition ml-2"
+            style={{ minWidth: '180px' }}
+          >
+            Become a Seller
+          </motion.button>
+
           </div>
 
           {/* Mobile Right Side: Cart + Hamburger */}
