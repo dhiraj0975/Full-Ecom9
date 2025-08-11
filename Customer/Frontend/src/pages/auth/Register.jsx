@@ -73,7 +73,7 @@
               <div className="flex justify-center space-x-4 mt-3"><a href="#" className="text-blue-600"><i className="fab fa-facebook-f"></i></a><a href="#" className="text-sky-400"><i className="fab fa-twitter"></i></a><a href="#" className="text-red-500"><i className="fab fa-google"></i></a></div>
             </div>
           </div>
-          <div className="w-full md:w-1/2 h-60 md:h-auto flex items-center justify-center bg-gray-50">
+          <div className="w-full md:w-1/2 h-60 md:h-auto flex items-center justify-center ">
   <img 
     src="/Girl-2.png" 
     alt="Register" 
