@@ -59,7 +59,7 @@ const Login = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  placeholder="Type your username"
+                  placeholder="Type your email"
                   className="w-full pl-10 pr-4 py-3 border-b-2 border-gray-200 focus:border-pink-400 outline-none"
                 />
               </div>
