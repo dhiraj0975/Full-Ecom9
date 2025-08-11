@@ -5,7 +5,7 @@ import AppRoutes from './AppRoutes';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import ScrollToTop from './components/common/ScrollToTop';
-import BackButton from './components/common/BackButton'; // ✅ BackButton added
+import BackButton from './components/common/BackButton'; 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -28,8 +28,14 @@ function App() {
     '/reset-password'
   ];
 
+  const hideFooterRoutes = [
+    '/login',
+    '/register'
+  ];
+
   const hideHeader = hideHeaderRoutes.includes(location.pathname);
-  
+  const hideFooter = hideFooterRoutes.includes(location.pathname);
+
   // Check if current path is product detail page
   const isProductDetailPage = location.pathname.startsWith('/products/') && location.pathname !== '/products';
   const hideBackButton = hideBackButtonRoutes.includes(location.pathname) || isProductDetailPage;
@@ -45,7 +51,7 @@ function App() {
         <AppRoutes />
       </main>
 
-      <Footer />
+      {!hideFooter && <Footer />}
       <ToastContainer position="top-right" autoClose={2000} />
     </div>
   );
