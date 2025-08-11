@@ -403,9 +403,16 @@ const Header = () => {
                   </button>
                 </>
               )}
-              <button onClick={() => { setMobileMenuOpen(false); navigate('/become-seller'); }} className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-semibold text-orange-600 border border-orange-400 bg-white hover:bg-orange-50 transition mt-2">
-                <UserPlus className="h-5 w-5" /> Become a Seller
-              </button>
+             <button 
+  onClick={() => { 
+    setMobileMenuOpen(false); 
+    window.open("https://retailer-frontend.vercel.app", "_blank");
+  }} 
+  className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-semibold text-orange-600 border border-orange-400 bg-white hover:bg-orange-50 transition mt-2"
+>
+  <UserPlus className="h-5 w-5" /> Become a Seller
+</button>
+
             </motion.div>
           )}
         </AnimatePresence>
