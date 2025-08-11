@@ -37,14 +37,11 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-400 to-pink-400 px-4">
       <div className="bg-white rounded-xl shadow-lg flex flex-col md:flex-row w-full max-w-4xl overflow-hidden">
-        {/* Left Side Video */}
+        
         <div className="md:w-1/2 w-full">
           <img
-            src="/../public/Entrepreneur.jpeg"
-            autoPlay
-            loop
-            muted
-            playsInline
+            src="/Entrepreneur.jpeg"
+          
             className="w-full h-64 md:h-full object-cover"
           />
         </div>
