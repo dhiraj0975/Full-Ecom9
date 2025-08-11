@@ -39,8 +39,8 @@ const Login = () => {
       <div className="bg-white rounded-xl shadow-lg flex flex-col md:flex-row w-full max-w-4xl overflow-hidden">
         {/* Left Side Video */}
         <div className="md:w-1/2 w-full">
-          <video
-            src="/../public/ani_2.mp4"
+          <img
+            src="/../public/Entrepreneur.jpeg"
             autoPlay
             loop
             muted
