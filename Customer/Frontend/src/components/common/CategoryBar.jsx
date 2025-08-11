@@ -1,41 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { getCategories } from '../../services/categoryService';
 import { getSubcategories } from '../../services/subcategoryService';
-import { ShoppingBag, Monitor, Shirt, Gift, Home, Book, Trophy, Smartphone } from 'lucide-react';
+// import { ShoppingBag, Monitor, Shirt, Gift, Home, Book, Trophy, Smartphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// Category name to icon mapping
-const iconMap = {
-  'Grocery': ShoppingBag,
-  'Electronics': Monitor,
-  'Fashion': Shirt,
-  'Beauty & Personal Care': Gift,
-  'Home & Kitchen': Home,
-  'Books': Book,
-  'Sports & Outdoors': Trophy,
-  'Toys & Games': Gift,
-  'Mobile & Accessories': Smartphone,
-  'Furniture': Home,
-  // Default
-  'default': ShoppingBag,
-};
 
-// Category name to unique hover text mapping
-const hoverTextMap = {
-  'Grocery': 'Shop fresh groceries',
-  'Electronics': 'Explore latest gadgets',
-  'Fashion': 'Discover new trends',
-  'Beauty & Personal Care': 'Pamper yourself',
-  'Home & Kitchen': 'Upgrade your home',
-  'Books': 'Read and grow',
-  'Sports & Outdoors': 'Get active!',
-  'Toys & Games': 'Fun for everyone',
-  'Mobile & Accessories': 'Stay connected',
-  'Furniture': 'Furnish your space',
-  // Default
-  'default': 'Explore this category',
-};
 
 const catBtnVariants = {
   initial: {
@@ -59,11 +29,11 @@ const catBtnVariants = {
   },
 };
 
-const iconVariants = {
-  initial: { scale: 1, color: '#2563eb' },
-  hover: { scale: 1.18, color: '#2563eb', transition: { type: 'spring', stiffness: 400 } },
-  tap: { scale: 1.12, color: '#2563eb' },
-};
+// const iconVariants = {
+//   initial: { scale: 1, color: '#2563eb' },
+//   hover: { scale: 1.18, color: '#2563eb', transition: { type: 'spring', stiffness: 400 } },
+//   tap: { scale: 1.12, color: '#2563eb' },
+// };
 
 const CategoryBar = ({ showIcons }) => {
   const [categories, setCategories] = useState([]);

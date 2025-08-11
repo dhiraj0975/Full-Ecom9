@@ -214,6 +214,11 @@ const Header = () => {
                   <Package className="h-4 w-4" /> My Orders
                 </button>
                 <button
+                  onClick={() => { setDropdownOpen(false); navigate('/address'); }}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                >
+                  <Package className="h-4 w-4" /> Address                </button>
+                <button
                   onClick={handleProfile}
                   className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition"
                 >

@@ -28,10 +28,14 @@ function App() {
     '/reset-password'
   ];
 
-  const hideFooterRoutes = [
-    '/login',
-    '/register'
-  ];
+ const hideFooterRoutes = [
+  '/login',
+  '/register',
+  '/forgot-password',  // <-- Add this line
+  '/verify-otp',       // Agar OTP page pe bhi footer nahi chahiye
+  '/reset-password'    // Agar reset page pe bhi footer nahi chahiye
+];
+
 
   const hideHeader = hideHeaderRoutes.includes(location.pathname);
   const hideFooter = hideFooterRoutes.includes(location.pathname);
