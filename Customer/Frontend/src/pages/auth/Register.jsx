@@ -75,7 +75,7 @@
           </div>
           <div className="w-full md:w-1/2 h-60 md:h-auto flex items-center justify-center bg-gray-50">
   <img 
-    src="/public/Girl-2.png" 
+    src="/Girl-2.png" 
     alt="Register" 
     className="w-full h-full object-contain md:object-cover" 
   />
